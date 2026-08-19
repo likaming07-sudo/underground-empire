@@ -8,7 +8,6 @@ st.set_page_config(
 
 st.title("🤖 Gemini API 測試")
 
-# 讀取 Streamlit Secrets
 try:
     API_KEY = st.secrets["GEMINI_API_KEY"]
 except Exception as e:
@@ -16,7 +15,6 @@ except Exception as e:
     st.code(repr(e))
     st.stop()
 
-# 檢查 Key 是否存在
 if not API_KEY:
     st.error("GEMINI_API_KEY 是空的")
     st.stop()
@@ -24,8 +22,6 @@ if not API_KEY:
 st.success("GEMINI_API_KEY 已讀取")
 
 try:
-
-    # 建立 Gemini Client
     client = genai.Client(
         api_key=str(API_KEY).strip()
     )
@@ -33,7 +29,6 @@ try:
     st.success("Gemini Client 建立成功")
 
 except Exception as e:
-
     st.error("Gemini Client 建立失敗")
     st.code(repr(e))
     st.stop()
@@ -44,7 +39,7 @@ if st.button("測試 Gemini"):
     try:
 
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.6-flash",
             contents="請只回答：測試成功"
         )
 
