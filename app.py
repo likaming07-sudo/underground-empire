@@ -1767,43 +1767,78 @@ if state["current_story"] is None:
 
 
 # ============================================================
-# ㉒ 顯示劇情
+# ㉒ 玩家行動
 # ============================================================
 
-st.subheader(
-    "📖 本月劇情"
-)
+st.subheader("🎮 你的行動")
+
+# ------------------------------------------------------------
+# 如果上一回合已經完成
+# ------------------------------------------------------------
+
+if st.session_state.get("turn_completed", False):
+
+    st.success(
+        f"💾 本回合完成！現在是 "
+        f"{p['age']} 歲・第 {p['month']} 個月。"
+    )
+
+    st.subheader("📜 上一回合結果")
+
+    if st.session_state.get("last_action"):
+
+        st.write(
+            f"**你的行動：** "
+            f"{st.session_state.last_action}"
+        )
+
+    if st.session_state.get("last_result"):
+
+        st.markdown(
+            f"""
+            <div class="story-box">
+            {st.session_state.last_result}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    st.divider()
+
+    # --------------------------------------------------------
+    # 進入下一個月
+    # --------------------------------------------------------
+
+    if st.button(
+        "➡️ 進入下一個月",
+        type="primary"
+    ):
+
+        # 清除上一回合資料
+        st.session_state.turn_completed = False
+        st.session_state.last_result = ""
+        st.session_state.last_action = ""
+
+        # 確保下一回合重新產生劇情
+        state["current_story"] = None
+        state["current_action"] = ""
+
+        st.rerun()
+
+    # 這裡直接停止
+    # 避免同一個畫面又執行玩家行動
+    st.stop()
 
 
-st.markdown(
-
-    f'<div class="story-box">'
-    f'{state["current_story"]}'
-    f'</div>',
-
-    unsafe_allow_html=True
-)
-
-
-# ============================================================
-# ㉓ 玩家行動
-# ============================================================
-
-st.subheader(
-    "🎮 你的行動"
-)
-
+# ------------------------------------------------------------
+# 正常遊戲：等待玩家輸入行動
+# ------------------------------------------------------------
 
 action = st.text_area(
-
     "你想做什麼？",
-
-    placeholder=(
-        "例如：我先讓阿豪分析情況，"
-        "再決定下一步。"
-    ),
-
-    height=120
+    placeholder="例如：我先讓阿豪調查這件事情，再決定下一步。",
+    height=120,
+    key="player_action_input"
 )
 
 
@@ -1814,11 +1849,13 @@ if st.button(
 
     if not action.strip():
 
-        st.warning(
-            "請輸入你的行動。"
-        )
+        st.warning("請輸入你的行動。")
 
     else:
+
+        # ----------------------------------------------------
+        # ① Gemini 判定玩家行動
+        # ----------------------------------------------------
 
         with st.spinner(
             "🤖 Gemini 正在判定你的行動..."
@@ -1827,14 +1864,10 @@ if st.button(
             try:
 
                 result = resolve_action(
-
                     state,
-
                     action,
-
                     state["current_story"]
                 )
-
 
             except Exception as e:
 
@@ -1845,20 +1878,9 @@ if st.button(
                 st.stop()
 
 
-        st.subheader(
-            "🎬 劇情結果"
-        )
-
-
-        st.markdown(
-
-            f'<div class="story-box">'
-            f'{result}'
-            f'</div>',
-
-            unsafe_allow_html=True
-        )
-
+        # ----------------------------------------------------
+        # ② 更新數值
+        # ----------------------------------------------------
 
         with st.spinner(
             "🎲 正在更新數值..."
@@ -1867,59 +1889,98 @@ if st.button(
             try:
 
                 changes = calculate_changes(
-
                     state,
-
                     action,
-
                     result
                 )
 
-
                 apply_changes(
-
                     state,
-
                     changes
                 )
 
-
             except Exception as e:
 
-                st.warning(
-                    f"數值更新失敗：{e}"
+                st.error(
+                    f"數值更新發生錯誤：{e}"
                 )
 
+                changes = {}
+
+
+        # ----------------------------------------------------
+        # ③ 儲存記憶
+        # ----------------------------------------------------
 
         add_memory(
-
             state,
-
             action,
-
             result
         )
 
+
+        # ----------------------------------------------------
+        # ④ 世界時間前進一個月
+        # ----------------------------------------------------
 
         world_tick(
             state
         )
 
 
+        # ----------------------------------------------------
+        # ⑤ 清除本月劇情
+        # ----------------------------------------------------
+
         state["current_story"] = None
+        state["current_action"] = ""
 
 
-        st.success(
-            "💾 本回合完成，下一個月開始。"
-        )
+        # ----------------------------------------------------
+        # ⑥ 儲存上一回合結果
+        # ----------------------------------------------------
+
+        st.session_state.last_result = result
+
+        st.session_state.last_action = action
+
+        st.session_state.turn_completed = True
 
 
-        time.sleep(1)
-
+        # ----------------------------------------------------
+        # ⑦ 重新整理畫面
+        # ----------------------------------------------------
 
         st.rerun()
 
 
+# ============================================================
+# ㉓ 新遊戲
+# ============================================================
+
+st.divider()
+
+if st.button(
+    "🔄 重新開始人生"
+):
+
+    st.session_state.game = new_game()
+
+    # 清除上一回合資料
+
+    if "last_result" in st.session_state:
+        del st.session_state.last_result
+
+    if "last_action" in st.session_state:
+        del st.session_state.last_action
+
+    if "turn_completed" in st.session_state:
+        del st.session_state.turn_completed
+
+    if "player_action_input" in st.session_state:
+        del st.session_state.player_action_input
+
+    st.rerun()
 # ============================================================
 # ㉔ 重新開始
 # ============================================================
