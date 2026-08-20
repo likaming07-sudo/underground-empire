@@ -32,7 +32,12 @@ if not API_KEY:
 
 client = genai.Client(api_key=API_KEY)
 
-MODEL = "gemini-3.6-flash"
+# ============================================================
+# Gemini 3.1 Flash-Lite
+# 低延遲、低成本、高頻率使用
+# ============================================================
+
+MODEL = "gemini-3.1-flash-lite"
 
 
 # ============================================================
@@ -82,6 +87,7 @@ SYSTEM_PROMPT = """
 
 重大事件不能連續每個月發生。
 
+不要讓每一個月都像電影高潮。
 
 ==================================================
 【玩家成長】
@@ -120,7 +126,6 @@ SYSTEM_PROMPT = """
 才可能接觸更高層人物。
 
 高級人物不能憑空出現。
-
 
 ==================================================
 【戀愛規則】
@@ -167,6 +172,7 @@ SYSTEM_PROMPT = """
 她可以離開玩家。
 她也可以主動做自己的事情。
 
+不要為了討好玩家而強迫 NPC 喜歡玩家。
 
 ==================================================
 【關係數值】
@@ -205,7 +211,6 @@ respect通常0～2
 除非玩家做出真正重大、合理、長期的事情，
 否則一次最多小幅變化。
 
-
 ==================================================
 【NPC】
 ==================================================
@@ -238,7 +243,6 @@ NPC可以：
 如果玩家做出兄弟不能接受的事情，
 忠誠、信任、尊重可以下降。
 
-
 ==================================================
 【玩家自由】
 ==================================================
@@ -256,6 +260,8 @@ NPC可以：
 
 不要擅自讓玩家答應事情。
 
+玩家沒有說出口的事情，
+不能當成玩家已經做過。
 
 ==================================================
 【犯罪內容】
@@ -274,7 +280,6 @@ NPC可以：
 法律後果
 
 不能提供具體犯罪操作教學。
-
 
 ==================================================
 【AI任務】
@@ -299,12 +304,50 @@ NPC可以：
 
 不要突然讓所有 NPC 喜歡玩家。
 
+==================================================
+【重要：數值】
+==================================================
+
+所有數值變化必須合理。
+
+普通工作：
+現金可能增加幾百到幾千。
+
+普通人際互動：
+關係通常只變化 0～2。
+
+重大事件：
+才可以產生比較大的變化。
+
+不要一次讓公司估值暴增數十萬甚至數百萬，
+除非劇情確實有合理原因。
+
+==================================================
+【重要：世界連續性】
+==================================================
+
+玩家之前做過的事情必須被記住。
+
+NPC之前發生過的事情不能隨意忘記。
+
+如果玩家沒有錢，
+不能突然買昂貴物品。
+
+如果玩家沒有工作，
+不能突然擁有穩定高收入。
+
+如果玩家與某人關係不好，
+不能下一回合突然變成好友。
 
 ==================================================
 【輸出】
 ==================================================
 
 你必須只輸出合法 JSON。
+
+不要輸出 Markdown。
+
+不要輸出 ```json。
 
 格式：
 
@@ -359,8 +402,9 @@ NPC可以：
   "listed": false
 }
 
-只輸出 JSON。
-不要使用 Markdown。
+所有欄位都必須存在。
+數值欄位必須是數字。
+created、death、arrested、listed 必須是 true 或 false。
 """
 
 
@@ -455,39 +499,30 @@ def call_ai(prompt, retries=2):
                 contents=prompt,
 
                 config={
-
-                    "system_instruction":
-                        SYSTEM_PROMPT,
-
-                    "temperature":
-                        0.85,
-
-                    "response_mime_type":
-                        "application/json"
+                    "system_instruction": SYSTEM_PROMPT,
+                    "response_mime_type": "application/json"
                 }
             )
 
             if not response.text:
-
-                raise RuntimeError(
-                    "AI 沒有返回內容"
-                )
+                raise RuntimeError("AI 沒有返回內容")
 
             text = response.text.strip()
 
-            text = text.replace(
-                "```json",
-                ""
-            )
+            if text.startswith("```json"):
+                text = text[7:]
 
-            text = text.replace(
-                "```",
-                ""
-            )
+            if text.startswith("```"):
+                text = text[3:]
+
+            if text.endswith("```"):
+                text = text[:-3]
 
             text = text.strip()
 
-            return json.loads(text)
+            result = json.loads(text)
+
+            return result
 
         except Exception as e:
 
@@ -500,22 +535,20 @@ def call_ai(prompt, retries=2):
             ):
 
                 if attempt < retries - 1:
-
                     time.sleep(3)
-
                     continue
 
                 raise RuntimeError(
-                    "Gemini 免費額度已達上限。\n\n"
-                    "這不是存檔系統的問題，"
-                    "請等 API 額度恢復後再玩。"
+                    "Gemini API 額度或速率限制已達上限。\n\n"
+                    "請稍後再試，或確認 Google AI Studio 的 API 使用量。"
                 )
 
             if "404" in error_text:
 
                 raise RuntimeError(
-                    "Gemini 模型無法使用，"
-                    "請確認 MODEL 設定。"
+                    "Gemini 模型無法使用。\n\n"
+                    f"目前設定的模型：{MODEL}\n\n"
+                    "請確認 Google AI API 使用的是 gemini-3.1-flash-lite。"
                 )
 
             if (
@@ -525,22 +558,19 @@ def call_ai(prompt, retries=2):
             ):
 
                 raise RuntimeError(
-                    "Gemini API Key 無效或沒有 API 權限。"
+                    "Gemini API Key 無效或沒有 API 權限。\n\n"
+                    "請確認 Streamlit Secrets 中的 GEMINI_API_KEY。"
                 )
 
             if attempt < retries - 1:
-
                 time.sleep(2)
-
                 continue
 
             raise RuntimeError(
                 f"AI 發生錯誤：{error_text}"
             )
 
-    raise RuntimeError(
-        "AI 暫時無法使用。"
-    )
+    raise RuntimeError("AI 暫時無法使用。")
 
 
 # ============================================================
@@ -554,15 +584,16 @@ def build_turn_prompt(
 
     p = state["player"]
 
+    # 只傳最近 6 筆記憶，避免 prompt 不斷膨脹
+    recent_history = state["history"][-6:]
+
     data = {
 
         "current_date": {
 
-            "age":
-                p["age"],
+            "age": p["age"],
 
-            "month":
-                p["month"]
+            "month": p["month"]
         },
 
         "player":
@@ -575,10 +606,10 @@ def build_turn_prompt(
             state["love_interest"],
 
         "flags":
-            state["flags"],
+            state["flags"][-30:],
 
         "recent_history":
-            state["history"][-8:],
+            recent_history,
 
         "current_story":
             state["current_story"],
@@ -603,6 +634,10 @@ def build_turn_prompt(
 下一個月必須自然銜接。
 
 不要突然出現無關的大事件。
+
+不要替玩家追加沒有輸入的行動。
+
+不要讓玩家自動做出重大決定。
 """
 
     else:
@@ -641,7 +676,8 @@ def build_turn_prompt(
 
     return json.dumps(
         data,
-        ensure_ascii=False
+        ensure_ascii=False,
+        separators=(",", ":")
     )
 
 
@@ -651,11 +687,7 @@ def build_turn_prompt(
 
 def safe_number(value):
 
-    if isinstance(
-        value,
-        (int, float)
-    ):
-
+    if isinstance(value, (int, float)):
         return value
 
     return 0
@@ -678,7 +710,6 @@ def apply_changes(
     )
 
     fields = [
-
         "cash",
         "assets",
         "company_value",
@@ -701,11 +732,9 @@ def apply_changes(
         )
 
         if field in [
-
             "cash",
             "assets",
             "company_value"
-
         ]:
 
             value = max(
@@ -721,7 +750,6 @@ def apply_changes(
             )
 
         p[field] += value
-
 
     p["cash"] = max(
         0,
@@ -778,14 +806,15 @@ def apply_changes(
         if name not in state["brothers"]:
             continue
 
+        if not isinstance(data, dict):
+            continue
+
         b = state["brothers"][name]
 
         for field in [
-
             "loyalty",
             "trust",
             "respect"
-
         ]:
 
             key = field + "_change"
@@ -818,6 +847,9 @@ def apply_changes(
         "love",
         {}
     )
+
+    if not isinstance(love_data, dict):
+        love_data = {}
 
     if state["love_interest"]:
 
@@ -859,14 +891,9 @@ def apply_changes(
             min(5, respect_change)
         )
 
-        love["affection"] += \
-            affection_change
-
-        love["trust"] += \
-            trust_change
-
-        love["respect"] += \
-            respect_change
+        love["affection"] += affection_change
+        love["trust"] += trust_change
+        love["respect"] += respect_change
 
         love["affection"] = max(
             0,
@@ -886,27 +913,21 @@ def apply_changes(
         affection = love["affection"]
 
         if affection < 20:
-
             love["relationship"] = "陌生"
 
         elif affection < 40:
-
             love["relationship"] = "認識"
 
         elif affection < 60:
-
             love["relationship"] = "朋友"
 
         elif affection < 75:
-
             love["relationship"] = "曖昧"
 
         elif affection < 90:
-
             love["relationship"] = "交往"
 
         else:
-
             love["relationship"] = "深度交往"
 
 
@@ -966,28 +987,36 @@ def apply_changes(
     # Flags
     # ========================================================
 
-    for flag in result.get(
+    flags_add = result.get(
         "flags_add",
         []
-    ):
+    )
 
-        if flag not in state["flags"]:
+    if isinstance(flags_add, list):
 
-            state["flags"].append(
-                flag
-            )
+        for flag in flags_add:
+
+            if (
+                isinstance(flag, str)
+                and
+                flag not in state["flags"]
+            ):
+
+                state["flags"].append(flag)
 
 
-    for flag in result.get(
+    flags_remove = result.get(
         "flags_remove",
         []
-    ):
+    )
 
-        if flag in state["flags"]:
+    if isinstance(flags_remove, list):
 
-            state["flags"].remove(
-                flag
-            )
+        for flag in flags_remove:
+
+            if flag in state["flags"]:
+
+                state["flags"].remove(flag)
 
 
     # ========================================================
@@ -1026,36 +1055,29 @@ def world_tick(state):
 
     p = state["player"]
 
+    # 合法事業自然產生少量收入
     if p["legal_business"] > 0:
 
         income = int(
-
             p["legal_business"]
             *
-            random.randint(
-                50,
-                150
-            )
+            random.randint(50, 150)
         )
 
         p["cash"] += income
 
-
+    # 公司成長
     if p["legal_business"] >= 10:
 
         growth = int(
-
             p["legal_business"]
             *
-            random.randint(
-                50,
-                200
-            )
+            random.randint(50, 200)
         )
 
         p["company_value"] += growth
 
-
+    # 下一個月
     p["month"] += 1
 
     if p["month"] > 12:
@@ -1094,19 +1116,20 @@ def add_memory(
             result.get(
                 "action_result",
                 ""
-            )[-2500:]
+            )[-1500:]
     }
 
     state["history"].append(
         memory
     )
 
+    # 只保留最近 30 回合
     if len(
         state["history"]
-    ) > 40:
+    ) > 30:
 
         state["history"] = (
-            state["history"][-40:]
+            state["history"][-30:]
         )
 
 
@@ -1165,7 +1188,6 @@ def load_game_file(uploaded_file):
 
         game = data["game"]
 
-        # 基本格式檢查
         if "player" not in game:
 
             raise ValueError(
@@ -1178,29 +1200,24 @@ def load_game_file(uploaded_file):
                 "存檔缺少兄弟資料。"
             )
 
-        # 補充舊版本可能缺少的欄位
-        if "love_interest" not in game:
+        # 補充舊版本欄位
 
+        if "love_interest" not in game:
             game["love_interest"] = None
 
         if "flags" not in game:
-
             game["flags"] = []
 
         if "history" not in game:
-
             game["history"] = []
 
         if "current_story" not in game:
-
             game["current_story"] = None
 
         if "current_result" not in game:
-
             game["current_result"] = None
 
         if "game_started" not in game:
-
             game["game_started"] = True
 
         return game
@@ -1227,58 +1244,35 @@ st.markdown(
     <style>
 
     .main-title {
-
         text-align: center;
-
         font-size: 42px;
-
         font-weight: bold;
-
         margin-bottom: 8px;
     }
 
-
     .subtitle {
-
         text-align: center;
-
         color: #888;
-
         margin-bottom: 25px;
     }
 
-
     .story-box {
-
         padding: 24px;
-
         border-radius: 12px;
-
         border: 1px solid #444;
-
         line-height: 1.8;
-
         font-size: 17px;
-
         white-space: pre-wrap;
     }
-
 
     .result-box {
-
         padding: 20px;
-
         border-radius: 12px;
-
         border: 1px solid #555;
-
         line-height: 1.8;
-
         font-size: 16px;
-
         white-space: pre-wrap;
     }
-
 
     </style>
     """,
@@ -1336,7 +1330,6 @@ with st.expander(
         2
     )
 
-
     with col_save:
 
         st.download_button(
@@ -1356,7 +1349,6 @@ with st.expander(
             use_container_width=True
         )
 
-
     with col_load:
 
         uploaded_file = st.file_uploader(
@@ -1367,7 +1359,6 @@ with st.expander(
 
             key="save_uploader"
         )
-
 
         if uploaded_file is not None:
 
@@ -1382,8 +1373,7 @@ with st.expander(
                         uploaded_file
                     )
 
-                    st.session_state.game = \
-                        loaded_game
+                    st.session_state.game = loaded_game
 
                     st.success(
                         "存檔讀取成功！"
@@ -1448,7 +1438,6 @@ if not state["game_started"]:
         """
     )
 
-
     if st.button(
         "🎮 開始人生",
         type="primary",
@@ -1458,7 +1447,6 @@ if not state["game_started"]:
         state["game_started"] = True
 
         st.rerun()
-
 
     st.stop()
 
@@ -1477,17 +1465,14 @@ if not p["alive"]:
         f"你享年 {p['age']} 歲。"
     )
 
-
     if st.button(
         "重新開始",
         use_container_width=True
     ):
 
-        st.session_state.game = \
-            new_game()
+        st.session_state.game = new_game()
 
         st.rerun()
-
 
     st.stop()
 
@@ -1502,17 +1487,14 @@ if p["arrested"]:
         "你的人生迎來重大轉折。"
     )
 
-
     if st.button(
         "重新開始",
         use_container_width=True
     ):
 
-        st.session_state.game = \
-            new_game()
+        st.session_state.game = new_game()
 
         st.rerun()
-
 
     st.stop()
 
@@ -1527,17 +1509,14 @@ if p["listed"]:
         "你完成了公司上市結局。"
     )
 
-
     if st.button(
         "重新開始",
         use_container_width=True
     ):
 
-        st.session_state.game = \
-            new_game()
+        st.session_state.game = new_game()
 
         st.rerun()
-
 
     st.stop()
 
@@ -1550,11 +1529,9 @@ st.subheader(
     f"📅 {p['age']}歲・第{p['month']}個月"
 )
 
-
 col1, col2, col3, col4 = st.columns(
     4
 )
-
 
 with col1:
 
@@ -1563,7 +1540,6 @@ with col1:
         f"${int(p['cash']):,}"
     )
 
-
 with col2:
 
     st.metric(
@@ -1571,14 +1547,12 @@ with col2:
         f"${int(p['assets']):,}"
     )
 
-
 with col3:
 
     st.metric(
         "🏢 公司估值",
         f"${int(p['company_value']):,}"
     )
-
 
 with col4:
 
@@ -1592,14 +1566,12 @@ col1, col2, col3, col4 = st.columns(
     4
 )
 
-
 with col1:
 
     st.metric(
         "🏦 合法事業",
         f"{int(p['legal_business'])}/100"
     )
-
 
 with col2:
 
@@ -1608,14 +1580,12 @@ with col2:
         int(p["power"])
     )
 
-
 with col3:
 
     st.metric(
         "⭐ 聲望",
         int(p["reputation"])
     )
-
 
 with col4:
 
@@ -1640,7 +1610,6 @@ with st.expander(
         )
 
         st.write(
-
             f"忠誠：{b['loyalty']}　"
             f"信任：{b['trust']}　"
             f"尊重：{b['respect']}　"
@@ -1720,11 +1689,10 @@ if state["current_story"] is None:
                 prompt
             )
 
-            state["current_story"] = \
-                result.get(
-                    "story",
-                    "你的故事即將開始。"
-                )
+            state["current_story"] = result.get(
+                "story",
+                "你的故事即將開始。"
+            )
 
             state["current_result"] = None
 
@@ -1746,11 +1714,9 @@ st.subheader(
 )
 
 st.markdown(
-
     f'<div class="story-box">'
     f'{state["current_story"]}'
     f'</div>',
-
     unsafe_allow_html=True
 )
 
@@ -1762,7 +1728,6 @@ st.markdown(
 st.subheader(
     "🎮 你的行動"
 )
-
 
 with st.form(
     "action_form",
@@ -1781,7 +1746,6 @@ with st.form(
 
         height=120
     )
-
 
     submitted = st.form_submit_button(
 
@@ -1806,7 +1770,6 @@ if submitted:
         )
 
         st.stop()
-
 
     with st.spinner(
         "🤖 AI 正在判定你的選擇..."
@@ -1837,24 +1800,18 @@ if submitted:
     # ========================================================
 
     result_text = result.get(
-
         "action_result",
-
         "這個行動產生了一些變化。"
     )
-
 
     st.subheader(
         "🎬 劇情結果"
     )
 
-
     st.markdown(
-
         f'<div class="result-box">'
         f'{result_text}'
         f'</div>',
-
         unsafe_allow_html=True
     )
 
@@ -1891,7 +1848,7 @@ if submitted:
 
     # ========================================================
     # 使用 AI 本回合已產生的下一月劇情
-    # 不額外消耗一次 API
+    # 不額外消耗 API
     # ========================================================
 
     next_story = result.get(
@@ -1899,17 +1856,15 @@ if submitted:
         ""
     )
 
+    if isinstance(next_story, str) and next_story.strip():
 
-    if next_story.strip():
-
-        state["current_story"] = \
-            next_story
+        state["current_story"] = next_story
 
     else:
 
-        state["current_story"] = \
+        state["current_story"] = (
             "新的一個月開始了。"
-
+        )
 
     state["current_result"] = None
 
@@ -1942,7 +1897,6 @@ with st.expander(
         ):
 
             st.markdown(
-
                 f"**{memory['age']}歲・"
                 f"第{memory['month']}個月**"
             )
@@ -1964,15 +1918,11 @@ with st.expander(
 
 st.divider()
 
-
 if st.button(
-
     "🔄 重新開始人生",
-
     use_container_width=True
 ):
 
-    st.session_state.game = \
-        new_game()
+    st.session_state.game = new_game()
 
     st.rerun()
