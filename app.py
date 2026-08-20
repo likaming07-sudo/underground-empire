@@ -11,7 +11,7 @@ from google import genai
 # ============================================================
 
 st.set_page_config(
-    page_title="地下帝國：AI人生",
+    page_title="地下帝國：模擬人生",
     page_icon="👑",
     layout="wide"
 )
@@ -45,7 +45,7 @@ MODEL = "gemini-3.1-flash-lite"
 # ============================================================
 
 SYSTEM_PROMPT = r"""
-你是《地下帝國：AI人生》的核心 AI Game Master。
+你是《地下帝國：模擬人生》的核心 AI Game Master。
 
 這是一個長篇、自由選擇、AI 驅動的人生與地下勢力模擬 RPG。
 
@@ -2470,7 +2470,7 @@ def create_save_data(state):
     return {
 
         "game_name":
-            "地下帝國：AI人生",
+            "地下帝國：模擬人生",
 
         "save_version":
             5,
@@ -2699,7 +2699,7 @@ p = state["player"]
 # ============================================================
 
 st.markdown(
-    '<div class="main-title">👑 地下帝國：AI人生</div>',
+    '<div class="main-title">👑 地下帝國：模擬人生</div>',
     unsafe_allow_html=True
 )
 
