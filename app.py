@@ -27,24 +27,23 @@ except Exception:
 
 if not API_KEY:
     st.error("找不到 GEMINI_API_KEY")
-    st.info("請到 Streamlit Cloud → Settings → Secrets 設定 API Key。")
+    st.info(
+        "請到 Streamlit Cloud → Settings → Secrets 設定 GEMINI_API_KEY。"
+    )
     st.stop()
 
 client = genai.Client(api_key=API_KEY)
 
-# ============================================================
 # Gemini 3.1 Flash-Lite
-# 低延遲、低成本、高頻率使用
-# ============================================================
-
+# 官方穩定模型 ID
 MODEL = "gemini-3.1-flash-lite"
 
 
 # ============================================================
-# ③ AI SYSTEM
+# ③ AI SYSTEM PROMPT
 # ============================================================
 
-SYSTEM_PROMPT = """
+SYSTEM_PROMPT = r"""
 你是「地下帝國：AI人生」的核心 AI Game Master。
 
 這是一個長篇、自由選擇、AI 驅動的人生 RPG。
@@ -65,35 +64,101 @@ SYSTEM_PROMPT = """
 
 
 ==================================================
-【世界規則】
+【最重要：核心玩法】
 ==================================================
+
+這是一個「人生模擬器」。
+
+不要把遊戲寫成單純小說。
 
 每個月是一回合。
 
-世界必須有自己的運作，不可以只圍著玩家轉。
+玩家做出行動後：
+→ AI 判定結果
+→ 產生劇情
+→ NPC 做出反應
+→ 關係數值發生合理變化
+→ 玩家數值發生合理變化
+→ 推進下一個月
+→ 提供3個建議行動
 
-不要每個月都發生重大事件。
+玩家永遠可以不選建議，
+直接輸入自己的自由行動。
 
-事件大小必須有變化。
+三個建議行動只是「建議」，
+不是限制。
 
-普通月份：
-工作、學習、家庭、朋友、兄弟、日常生活。
+==================================================
+【劇情風格】
+==================================================
 
-中型事件：
-工作機會、商業機會、人際衝突、感情、競爭者。
+劇情必須像人生模擬遊戲。
 
-大型事件：
-成立公司、重大投資、企業危機、警方調查、重大人物、媒體事件。
+不要每個月都發生大事件。
 
-重大事件不能連續每個月發生。
+大部分月份應該是普通生活。
 
-不要讓每一個月都像電影高潮。
+例如：
+
+找工作
+上班
+學習
+打工
+和兄弟吃飯
+處理家庭問題
+認識新朋友
+和同事相處
+存錢
+學習技能
+休息
+娛樂
+處理人際關係
+
+偶爾才出現：
+
+工作機會
+商業機會
+人際衝突
+競爭
+感情發展
+小型投資
+合作機會
+
+很少才出現：
+
+成立公司
+重大投資
+企業危機
+警方調查
+重大人物
+媒體事件
+
+不要連續幾個月都是重大事件。
+
+世界必須有節奏。
+
+==================================================
+【世界規則】
+==================================================
+
+世界必須有自己的運作。
+
+世界不能只圍著玩家轉。
+
+NPC 有自己的生活。
+
+玩家沒有做任何事情時，
+世界也會自然運作。
+
+不要每個月都讓玩家遇到「改變人生的大事件」。
+
+普通人就是普通人。
+
+玩家必須慢慢成長。
 
 ==================================================
 【玩家成長】
 ==================================================
-
-玩家必須從普通人慢慢成長。
 
 開局：
 
@@ -104,38 +169,138 @@ SYSTEM_PROMPT = """
 地下勢力0
 聲望0
 
-不能因為一個普通行動突然變成有錢人。
+玩家必須從普通人開始。
+
+不能因為一次普通行動突然暴富。
+
+不能因為第一次聊天就得到巨大商業機會。
 
 不能突然認識總裁、部長、政治人物或地下世界大人物。
 
 人物與世界必須有合理的接觸理由。
 
 玩家還是普通人時：
-主要接觸普通人、同學、同事、鄰居、小商家。
 
-玩家工作穩定：
-可能認識主管、老闆、客戶。
+主要接觸：
 
-玩家建立事業：
-可能認識企業家、投資人。
+同學
+同事
+鄰居
+朋友
+小商家
+普通家庭
+普通主管
 
-玩家聲望提高：
-才可能逐漸接觸媒體、重要人物。
+玩家工作穩定後：
 
-玩家建立商業網絡：
-才可能接觸更高層人物。
+可能認識：
 
-高級人物不能憑空出現。
+主管
+老闆
+客戶
+
+玩家建立事業後：
+
+才可能逐漸認識：
+
+企業家
+投資人
+合作夥伴
+
+玩家聲望提高後：
+
+才可能接觸：
+
+媒體
+重要人物
+大型企業
+
+所有關係必須逐步建立。
 
 ==================================================
-【戀愛規則】
+【三兄弟】
+==================================================
+
+阿龍、阿虎、阿豪不是工具人。
+
+他們都有自己的：
+
+性格
+想法
+利益
+底線
+能力
+人生
+
+他們可以：
+
+支持玩家
+反對玩家
+勸阻玩家
+幫助玩家
+與玩家爭吵
+失望
+生氣
+離開
+改變想法
+
+如果玩家做出兄弟不能接受的事情：
+
+忠誠可以下降
+信任可以下降
+尊重可以下降
+
+如果玩家長期照顧兄弟：
+
+可以逐漸增加。
+
+不要因為玩家一句話就讓兄弟關係大幅提升。
+
+==================================================
+【人際關係】
+==================================================
+
+所有 NPC 都必須有合理的人際關係。
+
+關係包含：
+
+affection
+trust
+respect
+
+第一次認識普通 NPC：
+
+affection 通常 0～2
+trust 通常 0～2
+respect 通常 0～2
+
+普通對話不能一次增加很多。
+
+重要人物更加不能亂加。
+
+例如：
+
+玩家第一次見企業家：
+
+affection +0
+trust +0
+respect +1
+
+不能：
+
+affection +10
+trust +10
+respect +10
+
+關係必須慢慢累積。
+
+==================================================
+【戀愛】
 ==================================================
 
 玩家開局沒有女朋友。
 
-不要第一個月直接生成女友。
-
-不要自動讓玩家愛上一個人。
+第一個月不要直接生成女友。
 
 戀愛必須自然發生。
 
@@ -155,6 +320,7 @@ SYSTEM_PROMPT = """
 
 戀愛 NPC 必須有：
 
+姓名
 性格
 家庭
 工作或學業
@@ -166,112 +332,26 @@ SYSTEM_PROMPT = """
 
 她不是玩家工具人。
 
-她可以拒絕玩家。
-她可以生氣。
-她可以失望。
-她可以離開玩家。
-她也可以主動做自己的事情。
+她可以：
 
-不要為了討好玩家而強迫 NPC 喜歡玩家。
-
-==================================================
-【關係數值】
-==================================================
-
-一般 NPC：
-
-relationship
-affection
-trust
-respect
-
-陌生人：
-
-affection通常0～2
-trust通常0～2
-respect通常0～2
-
-一次普通對話不能大幅增加。
-
-重要人物尤其不能亂加。
-
-例如玩家第一次見企業家：
-
-好感 +0
-信任 +0
-尊重 +1
-
-而不是：
-
-好感 +10
-信任 +10
-
-重要人物的關係必須慢慢建立。
-
-除非玩家做出真正重大、合理、長期的事情，
-否則一次最多小幅變化。
-
-==================================================
-【NPC】
-==================================================
-
-NPC不是工具人。
-
-NPC有自己的：
-
-利益
-恐懼
-性格
-目標
-底線
-關係
-生活
-
-NPC可以：
-
-幫助玩家
 拒絕玩家
-欺騙玩家
-嫉妒玩家
-競爭
+生氣
+失望
+疏遠
 離開
-背叛
-改變態度
+主動做自己的事情
 
-兄弟也不是工具人。
-
-如果玩家做出兄弟不能接受的事情，
-忠誠、信任、尊重可以下降。
-
-==================================================
-【玩家自由】
-==================================================
-
-玩家可以自由輸入任何合理行動。
-
-不要只限制在三個選項。
-
-可以提供三個建議選項，
-但玩家永遠可以自己輸入。
-
-不要替玩家說話。
-
-不要替玩家做重大決定。
-
-不要擅自讓玩家答應事情。
-
-玩家沒有說出口的事情，
-不能當成玩家已經做過。
+不要自動讓玩家愛上她。
 
 ==================================================
 【犯罪內容】
 ==================================================
 
-可以存在虛構犯罪劇情。
+世界可以存在虛構犯罪劇情。
 
-但是不要提供現實世界可以直接執行的犯罪方法。
+但不得提供現實世界可以直接執行的犯罪方法。
 
-犯罪內容只能描述：
+只描述：
 
 事件
 結果
@@ -279,82 +359,201 @@ NPC可以：
 人物反應
 法律後果
 
-不能提供具體犯罪操作教學。
+不能提供：
+
+具體犯罪操作
+規避警方的方法
+犯罪教學
+現實可執行的步驟
+
+==================================================
+【成功與失敗】
+==================================================
+
+玩家不能永遠成功。
+
+合理的行動可能：
+
+成功
+部分成功
+失敗
+
+失敗不是遊戲結束。
+
+失敗可以產生：
+
+金錢損失
+關係下降
+聲望下降
+健康下降
+錯過機會
+新問題
+
+但是不要為了製造失敗而強行失敗。
+
+==================================================
+【時間】
+==================================================
+
+每個月是一回合。
+
+每次玩家完成行動後，
+必須推進一個月。
+
+一年12個月。
+
+第12個月結束後：
+
+年齡 +1
+月份回到1
+
+三兄弟年齡也增加。
+
+==================================================
+【玩家自由】
+==================================================
+
+玩家可以自由輸入任何合理行動。
+
+不要限制玩家只能從三個選項選。
+
+每次都必須提供：
+
+1.
+2.
+3.
+
+三個建議行動。
+
+玩家也可以完全不理會三個建議。
+
+不要替玩家說話。
+
+不要替玩家做重大決定。
+
+不要擅自讓玩家答應事情。
+
+==================================================
+【非常重要：三個選項】
+==================================================
+
+每次玩家行動結束後，
+輸出：
+
+suggested_actions
+
+必須是三個不同方向的行動。
+
+例如：
+
+[
+  "先找一份穩定工作，開始累積收入",
+  "和阿豪討論未來的發展方向",
+  "暫時不急著工作，先了解附近的工作機會"
+]
+
+三個選項不能只是換句話說。
+
+必須有不同策略。
+
+例如：
+
+保守
+正常
+冒險
+
+或：
+
+工作
+人際
+學習
+
+選項必須符合目前劇情。
+
+不能突然出現與劇情完全無關的事情。
+
+==================================================
+【數值】
+==================================================
+
+玩家：
+
+cash
+assets
+company_value
+legal_business
+power
+reputation
+police_attention
+health
+
+數值必須合理。
+
+普通行動不要產生巨大變化。
+
+例如：
+
+普通工作：
+
+cash +1000～30000
+
+普通人際互動：
+
+reputation +0～2
+
+普通兄弟事件：
+
+trust +1～3
+
+重大事件才可以出現較大的變化。
 
 ==================================================
 【AI任務】
 ==================================================
 
-每次玩家完成一個行動後：
+每次玩家完成行動：
 
 1. 判斷玩家行動是否合理
 2. 判斷成功、部分成功或失敗
 3. 產生自然劇情
-4. 讓 NPC 按照自己的性格反應
-5. 更新關係
-6. 更新玩家數值
-7. 決定下一個月發生什麼
-8. 保持世界連續性
+4. NPC 按照自己的性格反應
+5. 更新兄弟關係
+6. 更新戀愛關係
+7. 更新玩家數值
+8. 決定下一個月的自然開場
+9. 提供3個合理建議行動
+10. 保持世界連續性
 
 不要讓玩家永遠成功。
 
-不要突然讓玩家暴富。
+不要突然暴富。
 
-不要突然讓玩家成為地下世界老大。
+不要突然成為地下世界老大。
 
 不要突然讓所有 NPC 喜歡玩家。
 
 ==================================================
-【重要：數值】
+【輸出格式】
 ==================================================
 
-所有數值變化必須合理。
+只能輸出合法 JSON。
 
-普通工作：
-現金可能增加幾百到幾千。
+不能輸出 Markdown。
 
-普通人際互動：
-關係通常只變化 0～2。
+不能輸出 ```json。
 
-重大事件：
-才可以產生比較大的變化。
-
-不要一次讓公司估值暴增數十萬甚至數百萬，
-除非劇情確實有合理原因。
-
-==================================================
-【重要：世界連續性】
-==================================================
-
-玩家之前做過的事情必須被記住。
-
-NPC之前發生過的事情不能隨意忘記。
-
-如果玩家沒有錢，
-不能突然買昂貴物品。
-
-如果玩家沒有工作，
-不能突然擁有穩定高收入。
-
-如果玩家與某人關係不好，
-不能下一回合突然變成好友。
-
-==================================================
-【輸出】
-==================================================
-
-你必須只輸出合法 JSON。
-
-不要輸出 Markdown。
-
-不要輸出 ```json。
-
-格式：
+格式必須完全符合：
 
 {
   "story": "本回合劇情",
   "action_result": "玩家行動結果",
   "next_month_story": "下一個月開場劇情",
+
+  "suggested_actions": [
+    "建議行動一",
+    "建議行動二",
+    "建議行動三"
+  ],
 
   "changes": {
     "cash_change": 0,
@@ -402,9 +601,27 @@ NPC之前發生過的事情不能隨意忘記。
   "listed": false
 }
 
-所有欄位都必須存在。
-數值欄位必須是數字。
-created、death、arrested、listed 必須是 true 或 false。
+==================================================
+【輸出長度】
+==================================================
+
+story：
+約150～350字。
+
+action_result：
+約100～300字。
+
+next_month_story：
+約80～200字。
+
+suggested_actions：
+每個約15～40字。
+
+不要寫成超長小說。
+
+要保持遊戲節奏。
+
+只輸出 JSON。
 """
 
 
@@ -415,11 +632,9 @@ created、death、arrested、listed 必須是 true 或 false。
 def new_game():
 
     return {
-
-        "save_version": 1,
+        "save_version": 2,
 
         "player": {
-
             "name": "你",
             "age": 18,
             "month": 1,
@@ -477,13 +692,14 @@ def new_game():
 
         "current_story": None,
         "current_result": None,
+        "suggested_actions": [],
 
         "game_started": False
     }
 
 
 # ============================================================
-# ⑤ AI 呼叫
+# ⑤ Gemini API
 # ============================================================
 
 def call_ai(prompt, retries=2):
@@ -499,8 +715,18 @@ def call_ai(prompt, retries=2):
                 contents=prompt,
 
                 config={
-                    "system_instruction": SYSTEM_PROMPT,
-                    "response_mime_type": "application/json"
+
+                    "system_instruction":
+                        SYSTEM_PROMPT,
+
+                    "response_mime_type":
+                        "application/json",
+
+                    "temperature":
+                        0.85,
+
+                    "max_output_tokens":
+                        3000
                 }
             )
 
@@ -509,20 +735,13 @@ def call_ai(prompt, retries=2):
 
             text = response.text.strip()
 
-            if text.startswith("```json"):
-                text = text[7:]
-
             if text.startswith("```"):
-                text = text[3:]
-
-            if text.endswith("```"):
-                text = text[:-3]
+                text = text.replace("```json", "")
+                text = text.replace("```", "")
 
             text = text.strip()
 
-            result = json.loads(text)
-
-            return result
+            return json.loads(text)
 
         except Exception as e:
 
@@ -539,16 +758,15 @@ def call_ai(prompt, retries=2):
                     continue
 
                 raise RuntimeError(
-                    "Gemini API 額度或速率限制已達上限。\n\n"
-                    "請稍後再試，或確認 Google AI Studio 的 API 使用量。"
+                    "Gemini 免費額度已達上限。\n\n"
+                    "請等 API 額度恢復後再繼續。"
                 )
 
             if "404" in error_text:
 
                 raise RuntimeError(
                     "Gemini 模型無法使用。\n\n"
-                    f"目前設定的模型：{MODEL}\n\n"
-                    "請確認 Google AI API 使用的是 gemini-3.1-flash-lite。"
+                    f"目前模型：{MODEL}"
                 )
 
             if (
@@ -558,8 +776,7 @@ def call_ai(prompt, retries=2):
             ):
 
                 raise RuntimeError(
-                    "Gemini API Key 無效或沒有 API 權限。\n\n"
-                    "請確認 Streamlit Secrets 中的 GEMINI_API_KEY。"
+                    "Gemini API Key 無效或沒有 API 權限。"
                 )
 
             if attempt < retries - 1:
@@ -577,27 +794,18 @@ def call_ai(prompt, retries=2):
 # ⑥ 建立 AI 回合資料
 # ============================================================
 
-def build_turn_prompt(
-    state,
-    action=None
-):
+def build_turn_prompt(state, action=None):
 
     p = state["player"]
-
-    # 只傳最近 6 筆記憶，避免 prompt 不斷膨脹
-    recent_history = state["history"][-6:]
 
     data = {
 
         "current_date": {
-
             "age": p["age"],
-
             "month": p["month"]
         },
 
-        "player":
-            p,
+        "player": p,
 
         "brothers":
             state["brothers"],
@@ -606,13 +814,16 @@ def build_turn_prompt(
             state["love_interest"],
 
         "flags":
-            state["flags"][-30:],
+            state["flags"],
 
         "recent_history":
-            recent_history,
+            state["history"][-8:],
 
         "current_story":
             state["current_story"],
+
+        "previous_suggested_actions":
+            state.get("suggested_actions", []),
 
         "player_action":
             action
@@ -623,21 +834,32 @@ def build_turn_prompt(
         data["task"] = """
 玩家已經完成本月行動。
 
-請：
+請依照目前世界狀態處理這次行動。
 
-1. 判斷行動結果
-2. 產生劇情結果
-3. 更新數值
-4. 更新 NPC 關係
-5. 決定下一個月開場事件
+重要：
 
-下一個月必須自然銜接。
+不要重置任何數值。
 
-不要突然出現無關的大事件。
+不要重新創造兄弟。
 
-不要替玩家追加沒有輸入的行動。
+不要重新創造世界。
 
-不要讓玩家自動做出重大決定。
+不要忽略最近歷史。
+
+玩家的行動可能成功、部分成功或失敗。
+
+要讓 NPC 根據既有性格做出反應。
+
+請產生：
+
+1. 本次行動結果
+2. 合理的數值變化
+3. 兄弟關係變化
+4. 戀愛關係變化
+5. 下一個月開場
+6. 三個不同方向的建議行動
+
+三個建議行動必須符合目前劇情。
 """
 
     else:
@@ -647,7 +869,7 @@ def build_turn_prompt(
 
 請生成18歲第1個月的開場劇情。
 
-玩家目前：
+玩家：
 
 沒有女友
 沒有錢
@@ -656,10 +878,11 @@ def build_turn_prompt(
 沒有勢力
 沒有背景
 
-不要直接讓玩家認識高官、
-富豪、大企業家或地下世界大人物。
+三兄弟已經存在。
 
-可以從：
+開場應該從普通人生開始。
+
+可以是：
 
 工作
 學業
@@ -667,22 +890,30 @@ def build_turn_prompt(
 兄弟
 朋友
 生活
-小型機會
 
-開始。
+不要一開始就：
 
-戀愛角色不要在開局直接出現。
+暴富
+成立大型公司
+認識大人物
+進入地下世界核心
+直接交女友
+
+但是要留下可以讓玩家自由行動的劇情空間。
+
+同時提供三個合理的第一回合建議行動。
+
+不要在開局產生戀愛角色。
 """
 
     return json.dumps(
         data,
-        ensure_ascii=False,
-        separators=(",", ":")
+        ensure_ascii=False
     )
 
 
 # ============================================================
-# ⑦ 安全數值
+# ⑦ 數值安全
 # ============================================================
 
 def safe_number(value):
@@ -693,14 +924,19 @@ def safe_number(value):
     return 0
 
 
+def clamp(value, minimum, maximum):
+
+    return max(
+        minimum,
+        min(maximum, value)
+    )
+
+
 # ============================================================
 # ⑧ 套用數值
 # ============================================================
 
-def apply_changes(
-    state,
-    result
-):
+def apply_changes(state, result):
 
     p = state["player"]
 
@@ -725,31 +961,34 @@ def apply_changes(
         key = field + "_change"
 
         value = safe_number(
-            changes.get(
-                key,
-                0
-            )
+            changes.get(key, 0)
         )
 
+        # 金錢類限制
         if field in [
             "cash",
             "assets",
             "company_value"
         ]:
 
-            value = max(
+            value = clamp(
+                value,
                 -100000,
-                min(100000, value)
+                100000
             )
 
+        # 狀態類限制
         else:
 
-            value = max(
+            value = clamp(
+                value,
                 -10,
-                min(10, value)
+                10
             )
 
         p[field] += value
+
+    # 安全範圍
 
     p["cash"] = max(
         0,
@@ -766,9 +1005,10 @@ def apply_changes(
         p["company_value"]
     )
 
-    p["legal_business"] = max(
+    p["legal_business"] = clamp(
+        p["legal_business"],
         0,
-        min(100, p["legal_business"])
+        100
     )
 
     p["power"] = max(
@@ -781,19 +1021,21 @@ def apply_changes(
         p["reputation"]
     )
 
-    p["police_attention"] = max(
+    p["police_attention"] = clamp(
+        p["police_attention"],
         0,
-        min(100, p["police_attention"])
+        100
     )
 
-    p["health"] = max(
+    p["health"] = clamp(
+        p["health"],
         0,
-        min(100, p["health"])
+        100
     )
 
 
     # ========================================================
-    # 兄弟
+    # 三兄弟關係
     # ========================================================
 
     brothers = result.get(
@@ -804,9 +1046,6 @@ def apply_changes(
     for name, data in brothers.items():
 
         if name not in state["brothers"]:
-            continue
-
-        if not isinstance(data, dict):
             continue
 
         b = state["brothers"][name]
@@ -820,36 +1059,33 @@ def apply_changes(
             key = field + "_change"
 
             value = safe_number(
-                data.get(
-                    key,
-                    0
-                )
+                data.get(key, 0)
             )
 
-            value = max(
+            # AI 每次最多只能改 5
+            value = clamp(
+                value,
                 -5,
-                min(5, value)
+                5
             )
 
             b[field] += value
 
-            b[field] = max(
+            b[field] = clamp(
+                b[field],
                 0,
-                min(100, b[field])
+                100
             )
 
 
     # ========================================================
-    # 戀愛
+    # 戀愛關係
     # ========================================================
 
     love_data = result.get(
         "love",
         {}
     )
-
-    if not isinstance(love_data, dict):
-        love_data = {}
 
     if state["love_interest"]:
 
@@ -876,38 +1112,44 @@ def apply_changes(
             )
         )
 
-        affection_change = max(
+        affection_change = clamp(
+            affection_change,
             -5,
-            min(5, affection_change)
+            5
         )
 
-        trust_change = max(
+        trust_change = clamp(
+            trust_change,
             -5,
-            min(5, trust_change)
+            5
         )
 
-        respect_change = max(
+        respect_change = clamp(
+            respect_change,
             -5,
-            min(5, respect_change)
+            5
         )
 
         love["affection"] += affection_change
         love["trust"] += trust_change
         love["respect"] += respect_change
 
-        love["affection"] = max(
+        love["affection"] = clamp(
+            love["affection"],
             0,
-            min(100, love["affection"])
+            100
         )
 
-        love["trust"] = max(
+        love["trust"] = clamp(
+            love["trust"],
             0,
-            min(100, love["trust"])
+            100
         )
 
-        love["respect"] = max(
+        love["respect"] = clamp(
+            love["respect"],
             0,
-            min(100, love["respect"])
+            100
         )
 
         affection = love["affection"]
@@ -938,13 +1180,10 @@ def apply_changes(
     if (
         state["love_interest"] is None
         and
-        love_data.get(
-            "created",
-            False
-        )
+        love_data.get("created", False)
     ):
 
-        # 防止開局直接出現
+        # 防止18歲前兩個月直接出現
         if (
             p["age"] > 18
             or
@@ -987,36 +1226,27 @@ def apply_changes(
     # Flags
     # ========================================================
 
-    flags_add = result.get(
+    for flag in result.get(
         "flags_add",
         []
-    )
+    ):
 
-    if isinstance(flags_add, list):
+        if flag not in state["flags"]:
 
-        for flag in flags_add:
+            state["flags"].append(
+                flag
+            )
 
-            if (
-                isinstance(flag, str)
-                and
-                flag not in state["flags"]
-            ):
-
-                state["flags"].append(flag)
-
-
-    flags_remove = result.get(
+    for flag in result.get(
         "flags_remove",
         []
-    )
+    ):
 
-    if isinstance(flags_remove, list):
+        if flag in state["flags"]:
 
-        for flag in flags_remove:
-
-            if flag in state["flags"]:
-
-                state["flags"].remove(flag)
+            state["flags"].remove(
+                flag
+            )
 
 
     # ========================================================
@@ -1030,14 +1260,12 @@ def apply_changes(
 
         p["alive"] = False
 
-
     if result.get(
         "arrested",
         False
     ):
 
         p["arrested"] = True
-
 
     if result.get(
         "listed",
@@ -1055,29 +1283,36 @@ def world_tick(state):
 
     p = state["player"]
 
-    # 合法事業自然產生少量收入
+    # 合法事業產生少量自然收入
     if p["legal_business"] > 0:
 
         income = int(
             p["legal_business"]
             *
-            random.randint(50, 150)
+            random.randint(
+                50,
+                150
+            )
         )
 
         p["cash"] += income
 
-    # 公司成長
+    # 公司自然成長
     if p["legal_business"] >= 10:
 
         growth = int(
             p["legal_business"]
             *
-            random.randint(50, 200)
+            random.randint(
+                50,
+                200
+            )
         )
 
         p["company_value"] += growth
 
-    # 下一個月
+    # 推進月份
+
     p["month"] += 1
 
     if p["month"] > 12:
@@ -1087,7 +1322,6 @@ def world_tick(state):
         p["age"] += 1
 
         for b in state["brothers"].values():
-
             b["age"] += 1
 
 
@@ -1116,36 +1350,35 @@ def add_memory(
             result.get(
                 "action_result",
                 ""
-            )[-1500:]
+            )[-2500:]
     }
 
     state["history"].append(
         memory
     )
 
-    # 只保留最近 30 回合
     if len(
         state["history"]
-    ) > 30:
+    ) > 40:
 
         state["history"] = (
-            state["history"][-30:]
+            state["history"][-40:]
         )
 
 
 # ============================================================
-# ⑪ 存檔系統
+# ⑪ 存檔
 # ============================================================
 
 def create_save_data(state):
 
-    save_data = {
+    return {
 
         "game_name":
             "地下帝國：AI人生",
 
         "save_version":
-            1,
+            2,
 
         "saved_at":
             time.strftime(
@@ -1155,8 +1388,6 @@ def create_save_data(state):
         "game":
             state
     }
-
-    return save_data
 
 
 def save_game_file(state):
@@ -1200,7 +1431,7 @@ def load_game_file(uploaded_file):
                 "存檔缺少兄弟資料。"
             )
 
-        # 補充舊版本欄位
+        # 舊存檔補欄位
 
         if "love_interest" not in game:
             game["love_interest"] = None
@@ -1216,6 +1447,9 @@ def load_game_file(uploaded_file):
 
         if "current_result" not in game:
             game["current_result"] = None
+
+        if "suggested_actions" not in game:
+            game["suggested_actions"] = []
 
         if "game_started" not in game:
             game["game_started"] = True
@@ -1274,6 +1508,13 @@ st.markdown(
         white-space: pre-wrap;
     }
 
+    .choice-box {
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #444;
+        margin-bottom: 8px;
+    }
+
     </style>
     """,
     unsafe_allow_html=True
@@ -1287,7 +1528,6 @@ st.markdown(
 if "game" not in st.session_state:
 
     st.session_state.game = new_game()
-
 
 state = st.session_state.game
 
@@ -1694,6 +1934,22 @@ if state["current_story"] is None:
                 "你的故事即將開始。"
             )
 
+            state["suggested_actions"] = (
+                result.get(
+                    "suggested_actions",
+                    []
+                )
+            )
+
+            # 保證至少有三個選項
+            if len(state["suggested_actions"]) < 3:
+
+                state["suggested_actions"] = [
+                    "先找一份穩定工作，開始累積收入。",
+                    "和阿豪討論目前的人生方向。",
+                    "先觀察附近環境，尋找其他機會。"
+                ]
+
             state["current_result"] = None
 
         except Exception as e:
@@ -1706,7 +1962,7 @@ if state["current_story"] is None:
 
 
 # ============================================================
-# ㉒ 劇情
+# ㉒ 本月劇情
 # ============================================================
 
 st.subheader(
@@ -1714,15 +1970,55 @@ st.subheader(
 )
 
 st.markdown(
+
     f'<div class="story-box">'
     f'{state["current_story"]}'
     f'</div>',
+
     unsafe_allow_html=True
 )
 
 
 # ============================================================
-# ㉓ 玩家行動
+# ㉓ 三個建議行動
+# ============================================================
+
+st.subheader(
+    "🎯 建議行動"
+)
+
+suggestions = state.get(
+    "suggested_actions",
+    []
+)
+
+if len(suggestions) < 3:
+
+    suggestions = [
+        "先找一份穩定工作，開始累積收入。",
+        "和阿豪討論目前的人生方向。",
+        "先觀察附近環境，尋找其他機會。"
+    ]
+
+choice_cols = st.columns(3)
+
+for i in range(3):
+
+    with choice_cols[i]:
+
+        st.markdown(
+            f"""
+            <div class="choice-box">
+            <b>選項 {i + 1}</b><br>
+            {suggestions[i]}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+# ============================================================
+# ㉔ 玩家自由行動
 # ============================================================
 
 st.subheader(
@@ -1739,9 +2035,11 @@ with st.form(
         "你想做什麼？",
 
         placeholder=(
-            "直接輸入你的行動，例如：\n"
-            "我決定先找一份工作，"
-            "晚上再和阿豪討論未來。"
+            "你可以輸入自己的行動，也可以直接輸入：\n"
+            "1\n"
+            "2\n"
+            "3\n"
+            "例如：我決定先找一份工作，晚上再和阿豪討論未來。"
         ),
 
         height=120
@@ -1758,7 +2056,7 @@ with st.form(
 
 
 # ============================================================
-# ㉔ 執行一回合
+# ㉕ 執行一回合
 # ============================================================
 
 if submitted:
@@ -1771,6 +2069,21 @@ if submitted:
 
         st.stop()
 
+
+    # --------------------------------------------------------
+    # 如果玩家輸入 1 / 2 / 3
+    # 自動轉成 AI 提供的建議
+    # --------------------------------------------------------
+
+    selected_action = action.strip()
+
+    if selected_action in ["1", "2", "3"]:
+
+        index = int(selected_action) - 1
+
+        selected_action = suggestions[index]
+
+
     with st.spinner(
         "🤖 AI 正在判定你的選擇..."
     ):
@@ -1779,7 +2092,7 @@ if submitted:
 
             prompt = build_turn_prompt(
                 state,
-                action
+                selected_action
             )
 
             result = call_ai(
@@ -1800,7 +2113,9 @@ if submitted:
     # ========================================================
 
     result_text = result.get(
+
         "action_result",
+
         "這個行動產生了一些變化。"
     )
 
@@ -1809,9 +2124,11 @@ if submitted:
     )
 
     st.markdown(
+
         f'<div class="result-box">'
         f'{result_text}'
         f'</div>',
+
         unsafe_allow_html=True
     )
 
@@ -1832,13 +2149,13 @@ if submitted:
 
     add_memory(
         state,
-        action,
+        selected_action,
         result
     )
 
 
     # ========================================================
-    # 進入下一個月
+    # 下一個月
     # ========================================================
 
     world_tick(
@@ -1847,8 +2164,8 @@ if submitted:
 
 
     # ========================================================
-    # 使用 AI 本回合已產生的下一月劇情
-    # 不額外消耗 API
+    # AI 已經一起生成下一個月
+    # 不再額外呼叫 API
     # ========================================================
 
     next_story = result.get(
@@ -1856,15 +2173,42 @@ if submitted:
         ""
     )
 
-    if isinstance(next_story, str) and next_story.strip():
+    if next_story.strip():
 
-        state["current_story"] = next_story
+        state["current_story"] = (
+            next_story
+        )
 
     else:
 
         state["current_story"] = (
             "新的一個月開始了。"
         )
+
+
+    # ========================================================
+    # 保存新的三個選項
+    # ========================================================
+
+    new_suggestions = result.get(
+        "suggested_actions",
+        []
+    )
+
+    if len(new_suggestions) >= 3:
+
+        state["suggested_actions"] = (
+            new_suggestions[:3]
+        )
+
+    else:
+
+        state["suggested_actions"] = [
+            "先處理眼前最重要的事情。",
+            "和其中一名兄弟討論目前的情況。",
+            "暫時觀察局勢，再決定下一步。"
+        ]
+
 
     state["current_result"] = None
 
@@ -1877,7 +2221,7 @@ if submitted:
 
 
 # ============================================================
-# ㉕ 人生記錄
+# ㉖ 人生記錄
 # ============================================================
 
 with st.expander(
@@ -1897,6 +2241,7 @@ with st.expander(
         ):
 
             st.markdown(
+
                 f"**{memory['age']}歲・"
                 f"第{memory['month']}個月**"
             )
@@ -1913,7 +2258,7 @@ with st.expander(
 
 
 # ============================================================
-# ㉖ 重新開始
+# ㉗ 重新開始
 # ============================================================
 
 st.divider()
