@@ -25,6 +25,7 @@ try:
 except Exception:
     API_KEY = None
 
+
 if not API_KEY:
     st.error("找不到 GEMINI_API_KEY")
     st.info(
@@ -36,16 +37,18 @@ if not API_KEY:
 
 client = genai.Client(api_key=API_KEY)
 
-# 使用較省額度的模型
+# ============================================================
+# 固定使用你指定的模型
+# ============================================================
+
 MODEL = "gemini-3.1-flash-lite"
 
 
 # ============================================================
-# ③ AI SYSTEM
+# ③ AI SYSTEM PROMPT
 # ============================================================
 
-SYSTEM_PROMPT = """
-
+SYSTEM_PROMPT = r"""
 你是《地下帝國：AI人生》的核心 AI Game Master。
 
 這是一個長篇、自由選擇、AI 驅動的黑道人生模擬 RPG。
@@ -81,7 +84,6 @@ SYSTEM_PROMPT = """
 地盤
 兄弟
 利益
-衝突
 人情
 背叛
 權力
@@ -106,12 +108,12 @@ SYSTEM_PROMPT = """
 小混混
 地方勢力
 幫派
-地下人物
+地下生意
 利益衝突
 保護費
 地下交易
 賭場
-娛樂場所
+娛樂場所勢力
 地下人脈
 衝突
 警方調查
@@ -189,15 +191,17 @@ SYSTEM_PROMPT = """
 玩家如果帶兄弟一起打天下，
 關係可以逐漸提升。
 
+兄弟要有自己的台詞與反應。
+
+不要每次都讓三兄弟全部同意玩家。
+
 ============================================================
 【世界運作】
 ============================================================
 
 每個月是一個回合。
 
-但是：
-
-玩家不是世界中心。
+但是玩家不是世界中心。
 
 世界會自己運作。
 
@@ -395,17 +399,6 @@ respect
 第一次見重要人物時，
 通常只增加非常少的尊重或好感。
 
-例如：
-
-好感 +0
-信任 +0
-尊重 +1
-
-而不是：
-
-好感 +20
-信任 +20
-
 ============================================================
 【戀愛】
 ============================================================
@@ -455,105 +448,112 @@ respect
 不要自動讓玩家愛上她。
 
 ============================================================
-【最重要：劇情寫法】
+【最重要：玩家行動的劇情寫法】
 ============================================================
 
-玩家輸入一個行動後，
+這是整個遊戲最重要的規則。
 
-絕對不能只寫結果。
+玩家輸入行動後，
+不能只寫結果。
 
-錯誤：
+絕對禁止：
 
-「你決定加入黑道，下一個月你已經成為幫派成員。」
+「你決定走黑道，下一個月你成功加入幫派。」
 
-這種寫法禁止。
+這種跳躍式寫法禁止。
 
-必須完整描寫玩家的行動過程。
+必須真正演出玩家的行動。
 
-例如：
+例如玩家選：
 
-玩家選擇「走黑道」。
+「我要去找豹哥談談。」
 
 應該描寫：
 
-玩家跟誰討論
-兄弟怎麼反應
-去哪裡
-見到誰
-對方怎麼看玩家
-雙方說了什麼
-談判過程
-玩家做了什麼
-對方提出什麼條件
-玩家怎麼回答
-事情最後怎麼結束
-玩家得到什麼
-玩家失去什麼
-其他人物對玩家產生什麼看法
+你為什麼去。
+誰陪你。
+你怎麼到那裡。
+門口看到什麼。
+遇到什麼人。
+對方怎麼看你。
+豹哥是否願意見你。
+你與豹哥怎麼談。
+阿龍說什麼。
+阿虎說什麼。
+阿豪怎麼觀察。
+豹哥提出什麼問題。
+你如何回答。
+對方如何反應。
+氣氛如何改變。
+中間發生什麼事情。
+最後事情怎麼收尾。
 
-最後才是：
+最後才寫：
 
 【劇情結果】
 
+這個結果必須是「這次行動真正造成的結果」。
+
+不要直接替玩家做下一步重大決定。
+
 例如：
 
-玩家本月第一次接觸地方勢力，
-得到一個小型機會，
-但還沒有真正加入幫派。
+玩家說：
+「我要試著加入豹哥。」
 
-必須有「過程」。
+可以寫談判過程。
+
+但是不能擅自寫：
+
+「豹哥讓你成為他的副手。」
+
+除非這個結果合理，而且玩家的行動真的足以造成這種結果。
 
 ============================================================
 【劇情長度】
 ============================================================
 
-不要寫得太短。
+action_result：
 
-action_result 建議：
+一般至少 900～1600 字。
 
-至少 700～1500 字。
+重大事件：
 
-如果是重大事件：
+1500～2500 字。
 
-可以 1500～2500 字。
+不要為了湊字數一直重複旁白。
 
-劇情必須有：
+要增加：
 
 場景
 人物
 對話
-行動
+動作
 反應
 心理
+氣氛
+衝突
+選擇
 結果
-後續影響
+後續伏筆
 
-不要一直用旁白快速跳過。
+劇情要有小說感。
+
+例如：
 
 不要：
 
-「你去了某地，談完後成功。」
+「你到了棋牌社，豹哥同意了你的要求。」
 
 要：
 
-「你去了某地。」
+「你推開棋牌社的門時，裡面的麻將聲突然停了一瞬。阿虎下意識往裡看了一眼，阿豪卻伸手壓住他的肩膀。」
 
-然後描寫：
-
-看到誰
-誰先開口
-兄弟怎麼反應
-玩家說什麼
-對方怎麼回答
-氣氛如何
-玩家如何做決定
-最後事情如何發展
+然後繼續演出。
 
 ============================================================
-【玩家行動】
+【玩家不能被AI控制】
 ============================================================
-
-玩家可以自由輸入任何合理行動。
 
 AI不能替玩家做重大決定。
 
@@ -570,6 +570,8 @@ AI可以讓玩家去找豹哥。
 殺人
 背叛兄弟
 花掉全部資產
+交往
+離開某個勢力
 
 除非玩家自己做出這個決定。
 
@@ -577,9 +579,8 @@ AI可以讓玩家去找豹哥。
 【三個選項】
 ============================================================
 
-每個月劇情最後必須提供：
-
-3個建議行動。
+每次行動結果結束後，
+AI都必須準備下一個月的3個建議行動。
 
 格式：
 
@@ -591,70 +592,145 @@ choices：
   "選項三"
 ]
 
-三個選項要有差異。
+三個選項必須有差異。
 
 例如：
 
 1. 去找豹哥談判
-2. 先和阿豪調查青幫
-3. 暫時不碰這件事，繼續自己的生活
+2. 先和阿豪調查青幫的動向
+3. 暫時不碰這件事情，繼續自己的生活
 
-玩家可以點其中一個。
+玩家可以點選其中一個。
 
-但是玩家也可以自己輸入文字。
+玩家也可以自己輸入文字。
 
-三個選項只是建議。
+三個選項只是建議，
+不能限制玩家。
 
 ============================================================
-【回合流程】
+【非常重要：回合流程】
 ============================================================
 
-非常重要：
+遊戲真正的流程：
 
 第一階段：
 
-顯示本月劇情。
+顯示本月開場劇情。
 
-玩家選擇行動。
+玩家選擇一個行動。
 
 第二階段：
 
-AI處理玩家行動。
+AI只處理「玩家現在這個行動」。
 
-生成完整的：
+生成：
 
 action_result
 
-並且同時準備：
+同時偷偷準備：
 
 next_month_story
 
+以及：
+
+next_month_choices
+
 但是：
 
-不要讓玩家立刻看到 next_month_story。
+next_month_story 不可以顯示給玩家。
 
-玩家目前只能看到：
+next_month_choices 也不能在 action_result 畫面顯示。
 
-本月行動的完整過程與結果。
+此時玩家只能看到：
+
+【劇情結果】
+
+也就是他剛剛做的事情。
 
 第三階段：
 
-玩家按「繼續」。
+玩家按：
 
-此時：
+「繼續・進入下一個月」
 
-進入下一個月。
+這時才：
 
-顯示之前 AI 已經生成的 next_month_story。
+月份 +1
+
+顯示之前已經生成的：
+
+next_month_story
+
+並且顯示：
+
+next_month_choices
 
 不要再次呼叫 AI。
 
-這樣可以節省 API 額度。
-
 第四階段：
 
-玩家看到下一個月劇情後，
-再次輸入行動。
+玩家看到下一個月的開場劇情後，
+選擇下一個行動。
+
+如此循環。
+
+============================================================
+【下一個月劇情】
+============================================================
+
+next_month_story 是「下一個月開始時」的開場。
+
+不能直接替玩家完成下一個月的行動。
+
+例如：
+
+本月：
+
+玩家去找豹哥。
+
+next_month_story 可以：
+
+「一個月後，你發現這條街最近多了幾張陌生面孔。阿豪坐在你旁邊，看著窗外的人影，低聲說：『他們應該不是來玩的。』」
+
+這是正確的。
+
+不能：
+
+「一個月後，你已經正式加入豹哥的勢力，開始替他管理地盤。」
+
+這是替玩家做決定，禁止。
+
+============================================================
+【劇情連貫】
+============================================================
+
+AI必須閱讀：
+
+current_story
+recent_history
+flags
+brothers
+love_interest
+
+並且記住：
+
+曾經出現的人物
+曾經出現的幫派
+曾經發生的事情
+玩家做過的選擇
+兄弟對玩家的態度
+NPC對玩家的態度
+玩家與不同勢力的關係
+
+不要每個月重新創造完全不同的世界。
+
+如果之前出現：
+
+豹哥
+青幫
+三義堂
+
+後續劇情可以繼續使用。
 
 ============================================================
 【數值】
@@ -673,7 +749,7 @@ next_month_story
 
 地下勢力必須慢慢增加。
 
-例如第一次接觸地方人物：
+第一次接觸地方人物：
 
 power +0
 或 +1
@@ -682,11 +758,46 @@ power +0
 
 power +30
 
+兄弟：
+
+普通事情：
+
+-1 到 +2
+
+重要事情：
+
+-3 到 +5
+
+戀愛：
+
+普通互動：
+
+-1 到 +2
+
+重要事件：
+
+-3 到 +5
+
+============================================================
+【死亡與逮捕】
+============================================================
+
+不要隨便讓玩家死亡。
+
+不要隨便讓玩家被逮捕。
+
+只有玩家的行動與累積局勢合理到達這種程度時，
+才可以發生。
+
 ============================================================
 【輸出】
 ============================================================
 
 只輸出合法 JSON。
+
+不要 Markdown。
+
+不要 ```json。
 
 格式：
 
@@ -695,7 +806,7 @@ power +30
 
   "action_result": "完整描寫玩家這次行動的過程、人物互動、對話、結果與後續影響",
 
-  "next_month_story": "下一個月開場劇情",
+  "next_month_story": "下一個月開始時的開場劇情",
 
   "choices": [
     "第一個建議行動",
@@ -748,10 +859,6 @@ power +30
   "arrested": false,
   "listed": false
 }
-
-只輸出 JSON。
-
-不要 Markdown。
 """
 
 
@@ -762,8 +869,7 @@ power +30
 def new_game():
 
     return {
-
-        "save_version": 2,
+        "save_version": 3,
 
         "player": {
             "name": "你",
@@ -821,15 +927,16 @@ def new_game():
         "flags": [],
         "history": [],
 
+        # 當前畫面正在顯示的劇情
         "current_story": None,
 
-        # action_result 暫存在這裡
+        # 玩家行動產生的結果
         "pending_result": None,
 
-        # 下一個月已經由上一個 API 回合生成
+        # AI 提前準備好的下一月劇情
         "pending_next_story": None,
 
-        # 下一個月選項
+        # AI 提前準備好的下一月選項
         "pending_next_choices": [],
 
         # playing / action_result
@@ -840,7 +947,7 @@ def new_game():
 
 
 # ============================================================
-# ⑤ Gemini AI
+# ⑤ Gemini API
 # ============================================================
 
 def call_ai(prompt, retries=2):
@@ -850,11 +957,8 @@ def call_ai(prompt, retries=2):
         try:
 
             response = client.models.generate_content(
-
                 model=MODEL,
-
                 contents=prompt,
-
                 config={
                     "system_instruction": SYSTEM_PROMPT,
                     "response_mime_type": "application/json"
@@ -862,14 +966,15 @@ def call_ai(prompt, retries=2):
             )
 
             if not response.text:
-                raise RuntimeError("AI 沒有返回內容")
+                raise RuntimeError("AI 沒有返回內容。")
 
             text = response.text.strip()
 
+            # 防止模型偶爾還是包 Markdown
             if text.startswith("```json"):
                 text = text[7:]
 
-            if text.startswith("```"):
+            elif text.startswith("```"):
                 text = text[3:]
 
             if text.endswith("```"):
@@ -880,6 +985,16 @@ def call_ai(prompt, retries=2):
             result = json.loads(text)
 
             return result
+
+        except json.JSONDecodeError as e:
+
+            if attempt < retries - 1:
+                time.sleep(2)
+                continue
+
+            raise RuntimeError(
+                f"AI 回傳的內容不是有效 JSON：{e}"
+            )
 
         except Exception as e:
 
@@ -904,7 +1019,7 @@ def call_ai(prompt, retries=2):
 
                 raise RuntimeError(
                     "Gemini 模型 gemini-3.1-flash-lite 無法使用。\n\n"
-                    "請確認 Gemini API Key 有權限使用此模型。"
+                    "請確認 Gemini API Key 目前有權限使用此模型。"
                 )
 
             if (
@@ -938,7 +1053,6 @@ def build_turn_prompt(state, action=None):
     p = state["player"]
 
     data = {
-
         "current_date": {
             "age": p["age"],
             "month": p["month"]
@@ -952,7 +1066,7 @@ def build_turn_prompt(state, action=None):
 
         "flags": state["flags"],
 
-        "recent_history": state["history"][-10:],
+        "recent_history": state["history"][-12:],
 
         "current_story": state["current_story"],
 
@@ -961,149 +1075,290 @@ def build_turn_prompt(state, action=None):
 
     if action:
 
-        data["task"] = """
-
+        task = """
 玩家剛剛在本月劇情中做出了以下行動：
 
 【玩家行動】
-%s
 
+{action}
+
+============================================================
 現在請完整演出這個行動。
+============================================================
 
-非常重要：
+這次輸出的 action_result 是整個回合最重要的內容。
 
-不要直接跳到結果。
+不能直接跳結果。
 
-必須描寫「過程」。
+必須把玩家「做這件事情的過程」演出來。
 
 至少包含：
 
 1. 玩家準備做什麼
-2. 玩家去了哪裡
-3. 見到了誰
-4. 兄弟如何反應
-5. NPC 如何反應
-6. 雙方對話
-7. 玩家做出的行動
-8. 對方做出的反應
-9. 事情如何一步一步發展
-10. 最後結果
-11. 這件事情對未來的影響
+2. 玩家與誰討論
+3. 誰陪玩家
+4. 玩家去了哪裡
+5. 場景與環境
+6. 見到誰
+7. NPC 怎麼看玩家
+8. 兄弟怎麼反應
+9. 雙方實際對話
+10. 玩家怎麼表態
+11. 對方提出什麼
+12. 玩家怎麼回應
+13. 中間發生什麼變化
+14. 其他 NPC 的反應
+15. 氣氛如何改變
+16. 最後結果
+17. 對未來產生什麼影響
+
+例如玩家選：
+
+「去找豹哥談談。」
+
+禁止寫：
+
+「你找到豹哥，豹哥同意讓你加入。」
+
+必須像小說一樣完整演出：
+
+你先跟兄弟討論。
+
+阿虎可能想直接進去。
+
+阿豪可能提醒你注意。
+
+阿龍可能提出不同看法。
+
+接著你們前往棋牌社。
+
+描述環境。
+
+描述門口的人。
+
+描述你們如何進去。
+
+描述豹哥如何看待你。
+
+描述雙方談話。
+
+描述豹哥問你的問題。
+
+描述你的回答。
+
+描述阿豪觀察到的細節。
+
+描述阿虎可能說出的話。
+
+描述豹哥的態度。
+
+最後才得到結果。
+
+============================================================
+【非常重要：不要替玩家做重大決定】
+============================================================
+
+玩家做出的事情只能依照玩家的指令。
 
 例如玩家說：
 
-「我要去找豹哥。」
+「我想去找豹哥談談。」
 
-不能直接：
+你可以演出：
 
-「你找到豹哥並成功加入他的勢力。」
+去找豹哥
+談判
+詢問
+觀察
+試探
 
-而要完整描寫：
+但不要擅自讓玩家：
 
-你怎麼去
-誰陪你
-到了哪裡
-門口是什麼情況
-見到豹哥
-豹哥怎麼看你
-雙方怎麼談
-阿虎說什麼
-阿豪怎麼觀察
-豹哥提出什麼問題
-玩家如何回答
-最後豹哥如何決定
+答應加入
+背叛兄弟
+殺人
+簽約
+花掉所有錢
+成為幫派頭目
+與 NPC 交往
 
-然後才進入【劇情結果】。
+除非玩家自己的指令已經明確做出這個決定。
 
-劇情要有小說感。
+============================================================
+【劇情風格】
+============================================================
 
-要有：
+劇情不要像遊戲系統報告。
 
+不要一直說：
+
+「你的聲望+1。」
+
+這些數值由 changes 處理。
+
+小說正文應該主要描寫：
+
+人物
 場景
 對話
-人物動作
-人物反應
+行動
+反應
 心理
 氣氛
-局勢變化
+局勢
 
-不要每句都在解釋數值。
+要有真正的故事感。
 
-不要寫成遊戲系統報告。
+action_result 一般至少 900～1600 字。
 
-action_result 要足夠長，
-讓玩家真的感覺自己「做了一件事情」。
+重大事件可以 1500～2500 字。
 
-------------------------------------------------------------
+不要用大量空泛旁白湊字數。
 
-另外請生成下一個月的開場劇情：
+============================================================
+【玩家目前的階段】
+============================================================
+
+玩家目前仍然是：
+
+{age}歲
+第{month}個月
+
+玩家不是大哥。
+
+如果玩家目前地下勢力很低，
+不要讓所有地下大人物突然認識玩家。
+
+人物必須逐步認識。
+
+如果玩家第一次遇到某個豹哥，
+不要直接讓豹哥把玩家當自己人。
+
+============================================================
+【世界記憶】
+============================================================
+
+請仔細閱讀：
+
+current_story
+recent_history
+flags
+brothers
+love_interest
+
+之前出現的人物必須有記憶。
+
+之前出現的幫派可以延續。
+
+之前的行動會影響現在的人際關係。
+
+============================================================
+【下一個月】
+============================================================
+
+除了 action_result 之外，
+還必須生成：
 
 next_month_story
 
-但是 next_month_story 必須是「下一個月開始時」的劇情。
+這只是下一個月的「開場」。
 
-不能把玩家下一個月的行動直接做完。
+不能替玩家完成下一個月的行動。
+
+例如本月：
+
+玩家去找豹哥。
+
+正確：
+
+「一個月後，阿豪告訴你，最近這條街多了幾個陌生面孔。你站在巷口，看著遠處棋牌社亮著的燈，開始意識到那次談話可能已經產生影響。」
+
+錯誤：
+
+「一個月後，你正式加入豹哥勢力，開始管理這條街。」
+
+因為後者替玩家做了下一個月的決定。
+
+============================================================
+【下一個月選項】
+============================================================
+
+choices 必須是下一個月開始後，
+玩家可以採取的三個不同方向。
 
 例如：
 
-這個月玩家去找豹哥。
+[
+  "去找豹哥問清楚最近的情況",
+  "跟阿豪先觀察街上的陌生人",
+  "暫時不碰地下勢力，先處理自己的生活"
+]
 
-下一個月：
+三個選項必須有明顯差異。
 
-「一個月後，豹哥的人開始出現在這條街附近，你注意到最近的氣氛有些不對。」
+玩家也可以自由輸入。
 
-這才是開場。
+============================================================
+【數值】
+============================================================
 
-不能：
+數值只能合理變化。
 
-「一個月後你已經加入豹哥勢力，開始負責地盤。」
+不要暴增。
 
-因為那是在替玩家做決定。
+普通事件：
 
-------------------------------------------------------------
+0～2
 
-最後提供3個下一步建議。
+重要事件：
 
-三個選項必須：
+3～5
 
-不同方向
-合理
-符合目前局勢
+地下勢力不能因為一次行動直接暴增。
 
-玩家也可以完全不按照這三個選項。
+兄弟關係也必須慢慢變。
 
-------------------------------------------------------------
+============================================================
+最後
+============================================================
 
-不要讓世界突然發生超大型事件。
+只輸出合法 JSON。
 
-如果玩家目前只是底層，
-就不要突然碰到全國級人物。
+不要 Markdown。
 
-黑道世界必須從地方開始慢慢建立。
+不要 ```。
+
+不要解釋 JSON。
 
 """
 
-        % action
+        data["task"] = task.format(
+            action=action,
+            age=p["age"],
+            month=p["month"]
+        )
 
     else:
 
         data["task"] = """
-
 這是新遊戲。
 
-請生成18歲第1個月的開場劇情。
+請生成：
+
+18歲・第1個月
+
+的開場劇情。
 
 玩家：
 
-18歲
 現金0
 資產0
-沒有公司
-沒有合法事業
+公司0
+合法事業0
 地下勢力0
 聲望0
-沒有女朋友
-沒有高層背景
+警方注意度0
+健康100
 
 玩家身邊只有：
 
@@ -1113,7 +1368,7 @@ next_month_story
 
 這是黑道人生模擬。
 
-但不要第一個月就直接讓玩家成為黑道老大。
+但是不要第一個月直接讓玩家加入大型幫派。
 
 從：
 
@@ -1123,14 +1378,27 @@ next_month_story
 地方
 小人物
 小型機會
+偶然事件
 
 開始。
 
-可以埋下未來黑道線索，
-但不要直接把玩家送進大型幫派。
+可以埋下地下世界的伏筆。
 
-劇情最後必須給3個合理選項。
+例如：
 
+某間棋牌社
+地方上的小混混
+某個陌生人物
+附近的地盤問題
+兄弟聽到的傳聞
+
+但不要直接把玩家變成黑道大哥。
+
+story 應該是一個有場景、有角色、有對話的開場。
+
+最後給3個玩家可以採取的方向。
+
+只輸出合法 JSON。
 """
 
     return json.dumps(
@@ -1152,14 +1420,17 @@ def safe_number(value):
 
 
 # ============================================================
-# ⑧ 套用數值
+# ⑧ 套用 AI 變化
 # ============================================================
 
 def apply_changes(state, result):
 
     p = state["player"]
 
-    changes = result.get("changes", {})
+    changes = result.get(
+        "changes",
+        {}
+    )
 
     fields = [
         "cash",
@@ -1200,9 +1471,15 @@ def apply_changes(state, result):
 
         p[field] += value
 
-    p["cash"] = max(0, p["cash"])
+    p["cash"] = max(
+        0,
+        p["cash"]
+    )
 
-    p["assets"] = max(0, p["assets"])
+    p["assets"] = max(
+        0,
+        p["assets"]
+    )
 
     p["company_value"] = max(
         0,
@@ -1234,7 +1511,6 @@ def apply_changes(state, result):
         min(100, p["health"])
     )
 
-
     # ========================================================
     # 兄弟關係
     # ========================================================
@@ -1249,7 +1525,7 @@ def apply_changes(state, result):
         if name not in state["brothers"]:
             continue
 
-        b = state["brothers"][name]
+        brother = state["brothers"][name]
 
         for field in [
             "loyalty",
@@ -1268,13 +1544,12 @@ def apply_changes(state, result):
                 min(5, value)
             )
 
-            b[field] += value
+            brother[field] += value
 
-            b[field] = max(
+            brother[field] = max(
                 0,
-                min(100, b[field])
+                min(100, brother[field])
             )
-
 
     # ========================================================
     # 戀愛
@@ -1326,14 +1601,13 @@ def apply_changes(state, result):
             love["relationship"] = "朋友"
 
         elif affection < 75:
-            love["relationship"] = "曖昧"
+            love["relationship"] = "熟悉"
 
         elif affection < 90:
-            love["relationship"] = "交往"
+            love["relationship"] = "曖昧"
 
         else:
-            love["relationship"] = "深度交往"
-
+            love["relationship"] = "交往"
 
     # ========================================================
     # 建立戀愛角色
@@ -1377,7 +1651,6 @@ def apply_changes(state, result):
                     "relationship": "認識"
                 }
 
-
     # ========================================================
     # Flags
     # ========================================================
@@ -1398,18 +1671,29 @@ def apply_changes(state, result):
         if flag in state["flags"]:
             state["flags"].remove(flag)
 
-
     # ========================================================
-    # 結局
+    # 結局狀態
     # ========================================================
 
-    if result.get("death", False):
+    if result.get(
+        "death",
+        False
+    ):
+
         p["alive"] = False
 
-    if result.get("arrested", False):
+    if result.get(
+        "arrested",
+        False
+    ):
+
         p["arrested"] = True
 
-    if result.get("listed", False):
+    if result.get(
+        "listed",
+        False
+    ):
+
         p["listed"] = True
 
 
@@ -1443,19 +1727,22 @@ def world_tick(state):
 
         p["company_value"] += growth
 
+    # 下一個月
     p["month"] += 1
 
     if p["month"] > 12:
 
         p["month"] = 1
+
         p["age"] += 1
 
-        for b in state["brothers"].values():
-            b["age"] += 1
+        for brother in state["brothers"].values():
+
+            brother["age"] += 1
 
 
 # ============================================================
-# ⑩ 記憶
+# ⑩ 人生記憶
 # ============================================================
 
 def add_memory(
@@ -1479,15 +1766,17 @@ def add_memory(
             result.get(
                 "action_result",
                 ""
-            )[-4000:]
+            )[-5000:]
     }
 
-    state["history"].append(memory)
+    state["history"].append(
+        memory
+    )
 
-    if len(state["history"]) > 40:
+    if len(state["history"]) > 50:
 
         state["history"] = (
-            state["history"][-40:]
+            state["history"][-50:]
         )
 
 
@@ -1503,7 +1792,7 @@ def create_save_data(state):
             "地下帝國：AI人生",
 
         "save_version":
-            2,
+            3,
 
         "saved_at":
             time.strftime(
@@ -1528,9 +1817,12 @@ def load_game_file(uploaded_file):
 
     try:
 
-        data = json.load(uploaded_file)
+        data = json.load(
+            uploaded_file
+        )
 
         if "game" not in data:
+
             raise ValueError(
                 "這不是有效的地下帝國存檔。"
             )
@@ -1538,11 +1830,13 @@ def load_game_file(uploaded_file):
         game = data["game"]
 
         if "player" not in game:
+
             raise ValueError(
                 "存檔缺少玩家資料。"
             )
 
         if "brothers" not in game:
+
             raise ValueError(
                 "存檔缺少兄弟資料。"
             )
@@ -1551,19 +1845,28 @@ def load_game_file(uploaded_file):
         defaults = {
 
             "love_interest": None,
+
             "flags": [],
+
             "history": [],
+
             "current_story": None,
+
             "pending_result": None,
+
             "pending_next_story": None,
+
             "pending_next_choices": [],
+
             "phase": "playing",
+
             "game_started": True
         }
 
         for key, value in defaults.items():
 
             if key not in game:
+
                 game[key] = value
 
         return game
@@ -1627,12 +1930,17 @@ st.markdown(
 
 
 # ============================================================
-# ⑬ Session
+# ⑬ Session State
 # ============================================================
 
 if "game" not in st.session_state:
 
     st.session_state.game = new_game()
+
+
+if "action_text" not in st.session_state:
+
+    st.session_state.action_text = ""
 
 
 state = st.session_state.game
@@ -1665,7 +1973,9 @@ with st.expander("💾 存檔 / 讀檔"):
         "建議每玩幾個月下載一次存檔。"
     )
 
-    save_data = save_game_file(state)
+    save_data = save_game_file(
+        state
+    )
 
     col_save, col_load = st.columns(2)
 
@@ -1709,7 +2019,11 @@ with st.expander("💾 存檔 / 讀檔"):
                         uploaded_file
                     )
 
-                    st.session_state.game = loaded_game
+                    st.session_state.game = (
+                        loaded_game
+                    )
+
+                    st.session_state.action_text = ""
 
                     st.success(
                         "存檔讀取成功！"
@@ -1721,7 +2035,9 @@ with st.expander("💾 存檔 / 讀檔"):
 
                 except Exception as e:
 
-                    st.error(str(e))
+                    st.error(
+                        str(e)
+                    )
 
 
 # ============================================================
@@ -1751,12 +2067,15 @@ if not state["game_started"]:
         但你有三個從小一起長大的兄弟：
 
         **阿龍**
+
         沉穩、重義氣。
 
         **阿虎**
+
         衝動、敢冒險。
 
         **阿豪**
+
         冷靜、擅長分析。
 
         這不是一個固定劇本。
@@ -1789,7 +2108,9 @@ if not state["game_started"]:
 
 if not p["alive"]:
 
-    st.error("☠️ 你的人生結束了。")
+    st.error(
+        "☠️ 你的人生結束了。"
+    )
 
     st.write(
         f"你享年 {p['age']} 歲。"
@@ -1802,6 +2123,8 @@ if not p["alive"]:
 
         st.session_state.game = new_game()
 
+        st.session_state.action_text = ""
+
         st.rerun()
 
     st.stop()
@@ -1809,7 +2132,9 @@ if not p["alive"]:
 
 if p["arrested"]:
 
-    st.error("🚔 你被警方逮捕。")
+    st.error(
+        "🚔 你被警方逮捕。"
+    )
 
     st.write(
         "你的人生迎來重大轉折。"
@@ -1822,6 +2147,8 @@ if p["arrested"]:
 
         st.session_state.game = new_game()
 
+        st.session_state.action_text = ""
+
         st.rerun()
 
     st.stop()
@@ -1829,7 +2156,9 @@ if p["arrested"]:
 
 if p["listed"]:
 
-    st.success("🏆 公司成功上市！")
+    st.success(
+        "🏆 公司成功上市！"
+    )
 
     st.write(
         "你完成了公司上市結局。"
@@ -1841,6 +2170,8 @@ if p["listed"]:
     ):
 
         st.session_state.game = new_game()
+
+        st.session_state.action_text = ""
 
         st.rerun()
 
@@ -1858,24 +2189,28 @@ st.subheader(
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
+
     st.metric(
         "💰 現金",
         f"${int(p['cash']):,}"
     )
 
 with col2:
+
     st.metric(
         "🏠 資產",
         f"${int(p['assets']):,}"
     )
 
 with col3:
+
     st.metric(
         "🏢 公司估值",
         f"${int(p['company_value']):,}"
     )
 
 with col4:
+
     st.metric(
         "❤️ 健康",
         f"{int(p['health'])}/100"
@@ -1885,24 +2220,28 @@ with col4:
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
+
     st.metric(
         "🏦 合法事業",
         f"{int(p['legal_business'])}/100"
     )
 
 with col2:
+
     st.metric(
         "👑 地下勢力",
         int(p["power"])
     )
 
 with col3:
+
     st.metric(
         "⭐ 聲望",
         int(p["reputation"])
     )
 
 with col4:
+
     st.metric(
         "👮 警方注意度",
         f"{int(p['police_attention'])}/100"
@@ -1915,19 +2254,21 @@ with col4:
 
 with st.expander("👊 三兄弟"):
 
-    for name, b in state["brothers"].items():
-
-        st.write(f"### {name}")
+    for name, brother in state["brothers"].items():
 
         st.write(
-            f"忠誠：{b['loyalty']}　"
-            f"信任：{b['trust']}　"
-            f"尊重：{b['respect']}　"
-            f"能力：{b['ability']}"
+            f"### {name}"
+        )
+
+        st.write(
+            f"忠誠：{brother['loyalty']}　"
+            f"信任：{brother['trust']}　"
+            f"尊重：{brother['respect']}　"
+            f"能力：{brother['ability']}"
         )
 
         st.caption(
-            b["personality"]
+            brother["personality"]
         )
 
 
@@ -1992,38 +2333,48 @@ if (
 
         try:
 
-            prompt = build_turn_prompt(state)
+            prompt = build_turn_prompt(
+                state
+            )
 
-            result = call_ai(prompt)
+            result = call_ai(
+                prompt
+            )
 
-            state["current_story"] = result.get(
-                "story",
-                "你的故事即將開始。"
+            state["current_story"] = (
+                result.get(
+                    "story",
+                    "你的故事即將開始。"
+                )
             )
 
             state["pending_next_choices"] = (
                 result.get(
                     "choices",
                     []
-                )
+                )[:3]
             )
 
-            # 初始劇情不進下一月
             state["phase"] = "playing"
 
         except Exception as e:
 
-            st.error(str(e))
+            st.error(
+                str(e)
+            )
+
             st.stop()
 
 
 # ============================================================
-# ㉒ 本月劇情 / 行動結果
+# ㉒ PLAYING：本月開場
 # ============================================================
 
 if state["phase"] == "playing":
 
-    st.subheader("📖 本月劇情")
+    st.subheader(
+        "📖 本月劇情"
+    )
 
     st.markdown(
         f'<div class="story-box">'
@@ -2043,7 +2394,9 @@ if state["phase"] == "playing":
 
     if choices:
 
-        st.write("### 🎮 建議行動")
+        st.write(
+            "### 🎮 建議行動"
+        )
 
         choice_cols = st.columns(3)
 
@@ -2055,44 +2408,43 @@ if state["phase"] == "playing":
 
                 if st.button(
                     f"{i + 1}. {choice}",
-                    key=f"choice_{i}_{p['age']}_{p['month']}",
+                    key=(
+                        f"choice_"
+                        f"{i}_"
+                        f"{p['age']}_"
+                        f"{p['month']}"
+                    ),
                     use_container_width=True
                 ):
 
-                    st.session_state.selected_action = choice
+                    st.session_state.action_text = (
+                        choice
+                    )
 
                     st.rerun()
-
 
     # ========================================================
     # 玩家自由輸入
     # ========================================================
 
-    st.write("### ✍️ 自由行動")
-
-    selected_action = st.session_state.get(
-        "selected_action",
-        ""
+    st.write(
+        "### ✍️ 自由行動"
     )
 
     with st.form(
         "action_form",
-        clear_on_submit=True
+        clear_on_submit=False
     ):
 
         action = st.text_area(
-
             "你想做什麼？",
-
-            value=selected_action,
-
+            key="action_text",
             placeholder=(
-                "可以直接輸入你的行動，例如：\n"
-                "我決定先跟阿豪去找附近的地方勢力，"
-                "看看有沒有能讓我們接觸地下世界的機會。"
+                "可以自由輸入，例如：\n"
+                "我決定先跟阿豪去附近看看，"
+                "找機會接觸地方上的地下勢力。"
             ),
-
-            height=130
+            height=150
         )
 
         submitted = st.form_submit_button(
@@ -2100,7 +2452,6 @@ if state["phase"] == "playing":
             type="primary",
             use_container_width=True
         )
-
 
     # ========================================================
     # 執行行動
@@ -2124,16 +2475,20 @@ if state["phase"] == "playing":
 
                 prompt = build_turn_prompt(
                     state,
-                    action
+                    action.strip()
                 )
 
-                result = call_ai(prompt)
+                result = call_ai(
+                    prompt
+                )
 
             except Exception as e:
 
-                st.error(str(e))
-                st.stop()
+                st.error(
+                    str(e)
+                )
 
+                st.stop()
 
         # ====================================================
         # 套用數值
@@ -2144,67 +2499,91 @@ if state["phase"] == "playing":
             result
         )
 
-
         # ====================================================
         # 記憶
         # ====================================================
 
         add_memory(
             state,
-            action,
+            action.strip(),
             result
         )
 
-
         # ====================================================
-        # 儲存「下一個月」
+        # 儲存下一個月
         # ====================================================
 
-        state["pending_next_story"] = result.get(
-            "next_month_story",
-            "新的一個月開始了。"
+        state["pending_next_story"] = (
+            result.get(
+                "next_month_story",
+                "新的一個月開始了。"
+            )
         )
 
-        state["pending_next_choices"] = result.get(
-            "choices",
-            []
+        # 這裡非常重要：
+        # 不要清掉！
+        # 這就是按「繼續」後下一個月的3選項
+        state["pending_next_choices"] = (
+            result.get(
+                "choices",
+                []
+            )[:3]
         )
 
+        # ====================================================
+        # 儲存這次行動結果
+        # ====================================================
+
+        state["pending_result"] = (
+            result.get(
+                "action_result",
+                "這個行動產生了一些變化。"
+            )
+        )
 
         # ====================================================
         # 重要：
-        # 此時不要 world_tick
-        # 因為玩家還沒按「繼續」
+        # 直接覆蓋目前畫面
+        #
+        # 不會：
+        #
+        # 本月劇情
+        # ↓
+        # 行動結果
+        #
+        # 一直往下堆
+        #
+        # 而是：
+        #
+        # 本月劇情
+        # ↓
+        # 執行
+        # ↓
+        # 畫面直接變成行動結果
         # ====================================================
 
-        state["pending_result"] = result.get(
-            "action_result",
-            "這個行動產生了一些變化。"
-        )
-
-        # 覆蓋本月劇情
         state["current_story"] = (
             state["pending_result"]
         )
 
-        # 進入「等待繼續」
+        # 進入等待繼續
         state["phase"] = "action_result"
 
-        # 清掉選項，避免玩家直接點下一個月選項
-        state["pending_next_choices"] = []
-
-        st.session_state.selected_action = ""
+        # 清除文字框
+        st.session_state.action_text = ""
 
         st.rerun()
 
 
 # ============================================================
-# ㉓ 行動結果
+# ㉓ ACTION RESULT：只顯示這次行動
 # ============================================================
 
 if state["phase"] == "action_result":
 
-    st.subheader("🎬 劇情結果")
+    st.subheader(
+        "🎬 劇情結果"
+    )
 
     st.markdown(
         f'<div class="result-box">'
@@ -2227,32 +2606,46 @@ if state["phase"] == "action_result":
     ):
 
         # ====================================================
-        # 現在才正式進入下一個月
+        # 現在才推進世界時間
         # ====================================================
 
-        world_tick(state)
+        world_tick(
+            state
+        )
 
-        # 將之前 AI 已經生成好的下一月劇情蓋上來
-        state["current_story"] = (
-            state["pending_next_story"]
+        # ====================================================
+        # 把之前 AI 已經生成好的下一月劇情蓋上來
+        # ====================================================
+
+        next_story = (
+            state.get(
+                "pending_next_story",
+                None
+            )
             or
             "新的一個月開始了。"
         )
 
-        # 下一月選項
-        # 注意：
-        # 上一回合生成的 choices 是針對下一月開場
-        state["pending_next_choices"] = (
-            state.get(
-                "pending_next_choices",
-                []
-            )
+        state["current_story"] = (
+            next_story
         )
 
+        # ====================================================
+        # pending_next_choices
+        #
+        # 這裡不要清掉。
+        #
+        # 它就是上一回合 AI 已經準備好的
+        # 「下一個月三個選項」
+        # ====================================================
+
         state["pending_result"] = None
+
         state["pending_next_story"] = None
 
         state["phase"] = "playing"
+
+        st.session_state.action_text = ""
 
         st.rerun()
 
@@ -2304,6 +2697,6 @@ if st.button(
 
     st.session_state.game = new_game()
 
-    st.session_state.selected_action = ""
+    st.session_state.action_text = ""
 
     st.rerun()
