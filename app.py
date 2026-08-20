@@ -47,7 +47,7 @@ MODEL = "gemini-3.1-flash-lite"
 SYSTEM_PROMPT = r"""
 你是《地下帝國：AI人生》的核心 AI Game Master。
 
-這是一個長篇、自由選擇、AI 驅動的黑道人生模擬 RPG。
+這是一個長篇、自由選擇、AI 驅動的人生與地下勢力模擬 RPG。
 
 玩家18歲開始，出生於台灣普通家庭。
 
@@ -312,6 +312,149 @@ NPC也會自己生活。
 
 
 ============================================================
+【重要人物系統】
+============================================================
+
+不是所有 NPC 都要保存。
+
+只有重要人物才加入 important_npcs。
+
+可以保存的重要人物包括：
+
+幫派頭目
+地方大哥
+重要幹部
+重要官員
+重要警方人物
+重要政治人物
+重要商人
+重要中間人
+長期競爭對手
+重要朋友
+重要敵人
+重要感情角色
+對玩家人生具有長期影響的人
+
+以下人物通常不要保存：
+
+路人
+普通店員
+普通服務生
+一次性小混混
+普通同學
+沒有後續作用的陌生人
+只在單一場景出現的小角色
+
+如果只是一次性角色，
+不要加入 important_npcs。
+
+重要 NPC 一旦加入，
+後續劇情必須記得這個人。
+
+重要 NPC 有：
+
+name
+role
+personality
+relationship
+affection
+trust
+respect
+status
+notes
+
+relationship 可以是：
+
+陌生
+認識
+朋友
+合作夥伴
+盟友
+競爭者
+敵人
+上級
+下屬
+重要人物
+其他合理關係
+
+affection：
+代表 NPC 對玩家的好感。
+
+trust：
+代表 NPC 對玩家的信任。
+
+respect：
+代表 NPC 對玩家的尊重。
+
+數值0～100。
+
+重要 NPC 第一次出現時，
+數值通常應該很低。
+
+例如：
+
+affection 0
+trust 0
+respect 1
+
+不要第一次見面就：
+
+好感+20
+信任+20
+尊重+30
+
+數值必須慢慢變化。
+
+普通事件：
+
+0～2
+
+重要事件：
+
+1～5
+
+重大事件：
+
+最多約10。
+
+不要隨便大幅增加。
+
+如果重要 NPC 在劇情中：
+
+死亡
+永久離開
+被消滅
+明確退出故事
+或玩家與其關係已經結束且永遠不會再出現
+
+可以設定：
+
+"remove": true
+
+此時程式會將該人物從目前重要人物名單移除。
+
+如果只是暫時離開，
+不要 remove。
+
+可以使用：
+
+status：
+
+活躍
+失蹤
+住院
+被捕
+退休
+離開本地
+敵對
+其他合理狀態
+
+重要人物不要隨便死亡。
+
+死亡必須有劇情原因。
+
+
+============================================================
 【黑道世界】
 ============================================================
 
@@ -338,14 +481,6 @@ NPC也會自己生活。
 
 角色必須有記憶。
 
-例如：
-
-某個豹哥曾經幫過玩家，
-後來玩家得罪他，
-他就不應該還像第一次見面一樣對待玩家。
-
-NPC對玩家的態度必須受到過去事件影響。
-
 
 ============================================================
 【NPC】
@@ -358,7 +493,6 @@ NPC有：
 利益
 恐懼
 性格
-目標
 底線
 關係
 記憶
@@ -380,46 +514,6 @@ NPC不一定相信玩家說的話。
 玩家說謊時，
 NPC可能相信，
 也可能懷疑。
-
-
-============================================================
-【關係數值】
-============================================================
-
-一般 NPC 可以有：
-
-affection
-trust
-respect
-
-兄弟有：
-
-loyalty
-trust
-respect
-
-數值必須慢慢變化。
-
-普通事件：
-
-+0
-+1
-+2
-
-比較重要的事件：
-
-+3
-+4
-+5
-
-不要一次：
-
-+20
-+30
-+50
-
-第一次見重要人物時，
-通常只增加非常少的尊重或好感。
 
 
 ============================================================
@@ -520,15 +614,16 @@ respect
 【action_result 劇情長度】
 ============================================================
 
-action_result：
-
 普通事件：
+
 700～1500字。
 
 重要事件：
+
 1000～1800字。
 
 重大事件：
+
 1500～2500字。
 
 不要刻意灌水。
@@ -548,31 +643,10 @@ action_result：
 
 不要一直用旁白快速跳過。
 
-不要：
-
-「你去了某地，談完後成功。」
-
-要：
-
-「你去了某地。」
-
-然後描寫：
-
-看到誰
-誰先開口
-兄弟怎麼反應
-玩家說什麼
-對方怎麼回答
-氣氛如何
-玩家如何做決定
-最後事情如何發展
-
 
 ============================================================
 【下一個月劇情】
 ============================================================
-
-非常重要。
 
 next_month_story 不能只有一兩句。
 
@@ -605,11 +679,11 @@ next_month_story 必須是：
 新的局勢
 一個需要玩家做決定的局面
 
-下一月劇情不能直接替玩家完成重大行動。
+最後停在：
 
-最後必須停在玩家需要決定下一步的位置。
+「現在，你必須決定下一步。」
 
-不要替玩家做下一個月的重大決定。
+不要替玩家做下一個重大決定。
 
 
 ============================================================
@@ -618,108 +692,73 @@ next_month_story 必須是：
 
 每個月劇情最後必須提供3個建議行動。
 
-格式：
-
-choices：
-
-[
-  "選項一",
-  "選項二",
-  "選項三"
-]
-
 三個選項必須有差異。
 
-玩家可以點其中一個。
-
-但是玩家也可以自己輸入文字。
+玩家也可以自己輸入文字。
 
 三個選項只是建議。
 
 
 ============================================================
-【回合流程】
+【健康】
 ============================================================
 
-第一階段：
+健康不是每個月固定下降。
 
-顯示本月開場劇情。
+這非常重要。
 
-玩家選擇行動。
+如果本月沒有發生：
 
-第二階段：
+受傷
+生病
+過度疲勞
+長時間缺乏休息
+重大心理或身體壓力
+其他合理的健康事件
 
-AI處理玩家行動。
+那麼：
 
-一次 API 呼叫同時生成：
+health_change 必須是 0。
 
-action_result
-next_month_story
-choices
-changes
-brothers
-love
-flags
+普通生活、正常工作、正常談話、正常出門、
+普通幫派接觸本身不能自動扣健康。
 
-但是：
+不要因為「地下生活」就每個月自動扣1點健康。
 
-next_month_story 不可以立即顯示。
+如果劇情真的讓玩家受傷或生病，
+才可以扣健康。
 
-玩家目前只能看到：
+輕微：
 
-本月行動的完整過程與結果。
+-1～-3
 
-第三階段：
+中度：
 
-玩家按「繼續」。
+-3～-7
 
-此時：
+重大：
 
-進入下一個月。
+-5～-15
 
-直接顯示之前 API 已經生成好的 next_month_story。
+如果玩家休息、治療或健康改善，
+可以合理增加健康。
 
-不要再次呼叫 AI。
+如果 health_change 不為0，
+health_reason 必須清楚描述原因。
 
-不要再次生成劇情。
+例如：
 
-第四階段：
+health_change: -3
+health_reason: "玩家在衝突中受到輕微擦傷，休息後沒有大礙。"
 
-玩家看到下一個月完整開場後，
-再次輸入行動。
+如果沒有合理原因：
 
-如此循環。
-
-
-============================================================
-【數值】
-============================================================
-
-每次只合理修改數值。
-
-現金
-資產
-公司估值
-合法事業
-地下勢力
-聲望
-警方注意度
-健康
-
-地下勢力必須慢慢增加。
-
-第一次接觸地方人物：
-
-power +0
-或 +1
-
-不可以：
-
-power +30
+health_change 必須是0
+health_reason 必須是""。
 
 
 ============================================================
-【重要：不要替玩家做決定】
+【不要替玩家做決定】
 ============================================================
 
 玩家說：
@@ -748,7 +787,9 @@ AI只能描寫玩家已經指定的行動，
 
 必須參考 recent_history。
 
-已經出現的人物要保持一致。
+也必須參考 important_npcs。
+
+已經出現的重要人物要保持一致。
 
 已經發生的事情不能被忘記。
 
@@ -765,7 +806,22 @@ AI只能描寫玩家已經指定的行動，
 
 
 ============================================================
-【輸出規則】
+【重要人物更新】
+============================================================
+
+每次 AI 回應都要檢查：
+
+1. 本回合是否出現新的重要人物？
+2. 如果有，加入 important_npcs。
+3. 如果是已經存在的人物，更新他的資料。
+4. 如果人物死亡或永久退場，remove=true。
+5. 不重要的小角色不要加入。
+6. 同一人物不能重複建立。
+7. 名字相同但不是同一人的情況，要根據 role 和 history 判斷。
+
+
+============================================================
+【輸出】
 ============================================================
 
 只輸出合法 JSON。
@@ -776,11 +832,13 @@ AI只能描寫玩家已經指定的行動，
 
 不要任何 JSON 外文字。
 
-JSON 必須符合以下結構：
+格式：
 
 {
   "story": "本月完整開場劇情",
+
   "action_result": "完整描寫玩家這次行動的過程、人物互動、對話、結果與後續影響",
+
   "next_month_story": "下一個月300～600字左右的完整開場劇情",
 
   "choices": [
@@ -797,7 +855,8 @@ JSON 必須符合以下結構：
     "power_change": 0,
     "reputation_change": 0,
     "police_attention_change": 0,
-    "health_change": 0
+    "health_change": 0,
+    "health_reason": ""
   },
 
   "brothers": {
@@ -818,6 +877,22 @@ JSON 必須符合以下結構：
     }
   },
 
+  "important_npcs": [
+    {
+      "name": "人物名字",
+      "role": "身分",
+      "personality": "性格",
+      "relationship": "與玩家關係",
+      "affection_change": 0,
+      "trust_change": 0,
+      "respect_change": 0,
+      "status": "活躍",
+      "notes": "目前值得記住的事情",
+      "keep": true,
+      "remove": false
+    }
+  ],
+
   "love": {
     "created": false,
     "name": "",
@@ -834,18 +909,6 @@ JSON 必須符合以下結構：
   "arrested": false,
   "listed": false
 }
-
-所有欄位都必須存在。
-
-changes 必須全部是數字。
-
-brothers 的 loyalty_change、trust_change、respect_change 必須全部是數字。
-
-love 的數值欄位必須全部是數字。
-
-flags_add 和 flags_remove 必須是陣列。
-
-death、arrested、listed 必須是 true 或 false。
 
 只輸出 JSON。
 """
@@ -911,6 +974,12 @@ def new_game():
             }
         },
 
+        # ========================================================
+        # 重要 NPC
+        # ========================================================
+
+        "important_npcs": [],
+
         "love_interest": None,
 
         "flags": [],
@@ -936,25 +1005,6 @@ def new_game():
 # ⑤ Gemini AI
 # ============================================================
 
-def clean_json_text(text):
-
-    if not text:
-        raise RuntimeError("AI 沒有返回內容。")
-
-    text = str(text).strip()
-
-    if text.startswith("```json"):
-        text = text[7:]
-
-    elif text.startswith("```"):
-        text = text[3:]
-
-    if text.endswith("```"):
-        text = text[:-3]
-
-    return text.strip()
-
-
 def call_ai(prompt, retries=2):
 
     for attempt in range(retries):
@@ -970,9 +1020,21 @@ def call_ai(prompt, retries=2):
                 }
             )
 
-            text = clean_json_text(
-                getattr(response, "text", "")
-            )
+            if not response.text:
+                raise RuntimeError("AI 沒有返回內容")
+
+            text = response.text.strip()
+
+            if text.startswith("```json"):
+                text = text[7:]
+
+            elif text.startswith("```"):
+                text = text[3:]
+
+            if text.endswith("```"):
+                text = text[:-3]
+
+            text = text.strip()
 
             result = json.loads(text)
 
@@ -1015,7 +1077,7 @@ def call_ai(prompt, retries=2):
             if "404" in error_text:
 
                 raise RuntimeError(
-                    f"Gemini 模型 {MODEL} 無法使用。\n\n"
+                    "Gemini 模型 gemini-3.1-flash-lite 無法使用。\n\n"
                     "請確認 Gemini API Key 有權限使用此模型。"
                 )
 
@@ -1058,6 +1120,11 @@ def build_turn_prompt(state, action=None):
 
         "brothers": state["brothers"],
 
+        "important_npcs": state.get(
+            "important_npcs",
+            []
+        ),
+
         "love_interest": state["love_interest"],
 
         "flags": state["flags"],
@@ -1082,10 +1149,12 @@ def build_turn_prompt(state, action=None):
 
 
 ============================================================
-【action_result】
+【第一部分：action_result】
 ============================================================
 
-action_result 是本次行動最重要的劇情。
+這是最重要的部分。
+
+action_result 必須是完整小說式劇情。
 
 普通事件至少700字左右。
 
@@ -1114,30 +1183,18 @@ action_result 是本次行動最重要的劇情。
 
 不要把幾天的事情濃縮成一句。
 
-如果玩家說：
+不要替玩家做出玩家沒有說過的重大決定。
 
-「去找豹哥談談」
-
-只能讓玩家去找豹哥談。
-
-不能擅自替玩家：
-
-答應加入
-簽協議
-背叛
-殺人
-花掉大筆資產
-做其他重大決定
-
-玩家沒有明確說的重大決定，
-必須留下選擇空間。
+如果玩家只是說「去找豹哥談談」，
+你可以讓玩家去談，
+但不要直接替玩家答應加入、簽約、背叛或其他重大決定。
 
 
 ============================================================
-【劇情風格】
+【劇情文字風格】
 ============================================================
 
-像長篇黑道人生小說。
+要像長篇黑道人生小說。
 
 要有：
 
@@ -1149,71 +1206,186 @@ action_result 是本次行動最重要的劇情。
 心理
 氣氛
 局勢
-人物關係
+人物之間的關係
 
-不要把正文寫成遊戲系統報告。
+不要寫成遊戲系統報告。
 
-不要在正文一直顯示：
+不要一直在正文裡寫：
 
-+1聲望
-+2信任
+「聲望+1」
+「阿豪信任+2」
 
 數值交給 JSON。
 
 
 ============================================================
-【next_month_story】
+【第二部分：next_month_story】
 ============================================================
 
-next_month_story 是下一個月的完整開場劇情。
+這個欄位非常重要。
 
-不是一句話。
+它不是一句「一個月後發生某件事」。
 
-至少約300～600字。
+它必須是：
 
-如果本月發生重大事件，
-可以600～800字。
+「下一個月的完整開場劇情」。
 
-必須包含：
+長度約300～600字。
+
+重大事件可以600～800字。
+
+必須有：
 
 場景
 時間
 人物
-人物對話
+對話
 兄弟反應
-上一個月事件的後續影響
-新的線索
+上一個月的後續
 新的局勢
+新的線索
 新的問題
-需要玩家決定的局面
+需要玩家做決定的局面
 
-不要直接替玩家完成下一個月的重大行動。
+最後停在需要玩家做決定的位置。
 
-最後必須停在玩家準備做決定的位置。
+不要替玩家做下一個重大決定。
 
 
 ============================================================
-【choices】
+【第三部分：choices】
 ============================================================
 
-choices 必須對應 next_month_story。
+choices 必須是針對 next_month_story 最後留下的局勢。
 
-三個選項必須有明顯差異。
+三個選項必須真的不同。
 
 例如：
 
 [
-  "直接去找豹哥談清楚",
-  "讓阿豪先調查背後情況",
-  "暫時不碰這件事情，先觀察局勢"
+  "去找豹哥，直接談清楚這件事",
+  "讓阿豪先調查事情背後的勢力",
+  "暫時不接觸豹哥，先觀察街上的變化"
 ]
 
-不要只是同一個行動換不同說法。
+不要三個選項只是換句話說。
+
+
+============================================================
+【健康數值】
+============================================================
+
+這次非常重要。
+
+健康不是固定每月下降。
+
+如果本月劇情沒有：
+
+受傷
+生病
+過度疲勞
+重大身體壓力
+其他合理健康事件
+
+health_change 必須是：
+
+0
+
+正常生活、普通工作、聊天、吃飯、出門、
+一般社交、一般談判，都不應該自動扣健康。
+
+如果玩家真的受傷或生病：
+
+輕微：
+-1～-3
+
+中度：
+-3～-7
+
+重大：
+-5～-15
+
+如果休息或治療後恢復，
+才可以合理增加健康。
+
+只要 health_change 不為0，
+health_reason 必須寫明真正原因。
+
+如果沒有健康事件：
+
+"health_change": 0,
+"health_reason": ""
+
+
+============================================================
+【重要人物】
+============================================================
+
+請檢查本回合是否：
+
+1. 出現新的重要人物
+2. 與既有重要人物互動
+3. 某個重要人物死亡或永久退場
+
+只有真正重要的人物才放進 important_npcs。
+
+例如可以保存：
+
+幫派頭目
+地方大哥
+重要幹部
+重要官員
+重要警方人物
+重要政治人物
+重要商人
+重要中間人
+長期競爭對手
+重要朋友
+重要敵人
+重要感情角色
+
+不要保存：
+
+路人
+店員
+普通小混混
+一次性角色
+普通同學
+只出現一次且沒有長期作用的人
+
+如果是新的重要人物：
+
+keep=true
+remove=false
+
+如果是已存在的重要人物，
+更新其 relationship、status、notes，
+並給合理的 affection_change、trust_change、respect_change。
+
+如果重要人物死亡或永久退出故事：
+
+remove=true
+
+此時不要再把他當成活躍人物。
+
+不要讓同一個人物重複建立。
+
+important_npcs 只需要放：
+
+新增的重要人物
+或
+這回合發生關係變化的重要人物
+或
+需要更新狀態的重要人物
+
+不需要每回合重複列出所有人物。
 
 
 ============================================================
 【數值】
 ============================================================
+
+只合理修改。
 
 普通事件：
 
@@ -1222,6 +1394,10 @@ choices 必須對應 next_month_story。
 重要事件：
 
 1～5
+
+重大事件：
+
+最多約10。
 
 不要一次：
 
@@ -1238,25 +1414,17 @@ choices 必須對應 next_month_story。
 
 務必參考 recent_history。
 
-已經出現的人物必須保持記憶。
+務必參考 important_npcs。
+
+已經出現的重要人物必須保持記憶。
 
 已經發生的事情必須產生後續影響。
+
+NPC對玩家的態度必須合理。
 
 不要每個月重新介紹同一個人物。
 
 不要突然創造大量新幫派。
-
-如果上一個月有重要事件，
-下一個月優先描寫：
-
-餘波
-人物態度
-利益變化
-關係變化
-壓力
-新的線索
-
-而不是馬上發生另一場大型事件。
 
 
 ============================================================
@@ -1269,9 +1437,74 @@ choices 必須對應 next_month_story。
 
 不要 ```json。
 
-不要 JSON 外文字。
+不要任何 JSON 外文字。
 
-所有欄位都必須存在。
+{
+  "story": "...",
+  "action_result": "...",
+  "next_month_story": "...",
+  "choices": [
+    "...",
+    "...",
+    "..."
+  ],
+  "changes": {
+    "cash_change": 0,
+    "assets_change": 0,
+    "company_value_change": 0,
+    "legal_business_change": 0,
+    "power_change": 0,
+    "reputation_change": 0,
+    "police_attention_change": 0,
+    "health_change": 0,
+    "health_reason": ""
+  },
+  "brothers": {
+    "阿龍": {
+      "loyalty_change": 0,
+      "trust_change": 0,
+      "respect_change": 0
+    },
+    "阿虎": {
+      "loyalty_change": 0,
+      "trust_change": 0,
+      "respect_change": 0
+    },
+    "阿豪": {
+      "loyalty_change": 0,
+      "trust_change": 0,
+      "respect_change": 0
+    }
+  },
+  "important_npcs": [
+    {
+      "name": "",
+      "role": "",
+      "personality": "",
+      "relationship": "",
+      "affection_change": 0,
+      "trust_change": 0,
+      "respect_change": 0,
+      "status": "活躍",
+      "notes": "",
+      "keep": true,
+      "remove": false
+    }
+  ],
+  "love": {
+    "created": false,
+    "name": "",
+    "personality": "",
+    "affection_change": 0,
+    "trust_change": 0,
+    "respect_change": 0
+  },
+  "flags_add": [],
+  "flags_remove": [],
+  "death": false,
+  "arrested": false,
+  "listed": false
+}
 """
 
     else:
@@ -1328,13 +1561,19 @@ choices 必須對應 next_month_story。
 生活細節
 至少一個可以讓玩家做決定的局面
 
-action_result 留空。
+此時 action_result 可以留空。
 
-next_month_story 留空。
+next_month_story 可以留空。
 
 changes全部為0。
 
+health_change必須為0。
+
+health_reason必須為""。
+
 兄弟關係全部為0。
+
+important_npcs應該為空陣列。
 
 love.created必須為false。
 """
@@ -1346,7 +1585,7 @@ love.created必須為false。
 
 
 # ============================================================
-# ⑦ 安全數值
+# ⑦ 數值安全
 # ============================================================
 
 def safe_number(value):
@@ -1357,38 +1596,410 @@ def safe_number(value):
     if isinstance(value, (int, float)):
         return value
 
-    try:
-        return float(value)
-    except Exception:
-        return 0
+    return 0
 
 
 # ============================================================
-# ⑧ 安全取得文字
+# ⑧ NPC 工具
 # ============================================================
 
-def safe_text(value, default=""):
+def normalize_npc(npc):
 
-    if value is None:
-        return default
+    if not isinstance(npc, dict):
+        return None
 
-    if isinstance(value, str):
-        return value.strip()
+    name = str(
+        npc.get("name", "")
+    ).strip()
 
-    return str(value).strip()
+    if not name:
+        return None
+
+    return {
+        "name": name,
+
+        "role": str(
+            npc.get(
+                "role",
+                "重要人物"
+            )
+        ).strip(),
+
+        "personality": str(
+            npc.get(
+                "personality",
+                "個性未明"
+            )
+        ).strip(),
+
+        "relationship": str(
+            npc.get(
+                "relationship",
+                "認識"
+            )
+        ).strip(),
+
+        "affection": max(
+            0,
+            min(
+                100,
+                safe_number(
+                    npc.get(
+                        "affection",
+                        0
+                    )
+                )
+            )
+        ),
+
+        "trust": max(
+            0,
+            min(
+                100,
+                safe_number(
+                    npc.get(
+                        "trust",
+                        0
+                    )
+                )
+            )
+        ),
+
+        "respect": max(
+            0,
+            min(
+                100,
+                safe_number(
+                    npc.get(
+                        "respect",
+                        0
+                    )
+                )
+            )
+        ),
+
+        "status": str(
+            npc.get(
+                "status",
+                "活躍"
+            )
+        ).strip(),
+
+        "notes": str(
+            npc.get(
+                "notes",
+                ""
+            )
+        ).strip()
+    }
+
+
+def find_npc(state, name):
+
+    for npc in state.get(
+        "important_npcs",
+        []
+    ):
+
+        if npc.get("name") == name:
+            return npc
+
+    return None
+
+
+def apply_npc_changes(state, result):
+
+    npc_changes = result.get(
+        "important_npcs",
+        []
+    )
+
+    if not isinstance(
+        npc_changes,
+        list
+    ):
+        return
+
+    if "important_npcs" not in state:
+        state["important_npcs"] = []
+
+    for raw_npc in npc_changes:
+
+        if not isinstance(
+            raw_npc,
+            dict
+        ):
+            continue
+
+        name = str(
+            raw_npc.get(
+                "name",
+                ""
+            )
+        ).strip()
+
+        if not name:
+            continue
+
+        remove = bool(
+            raw_npc.get(
+                "remove",
+                False
+            )
+        )
+
+        existing = find_npc(
+            state,
+            name
+        )
+
+        # ========================================================
+        # 移除重要人物
+        # ========================================================
+
+        if remove:
+
+            state["important_npcs"] = [
+                npc
+                for npc in state["important_npcs"]
+                if npc.get("name") != name
+            ]
+
+            continue
+
+        # ========================================================
+        # 更新既有人物
+        # ========================================================
+
+        if existing:
+
+            for field in [
+                "role",
+                "personality",
+                "relationship",
+                "status",
+                "notes"
+            ]:
+
+                value = raw_npc.get(
+                    field,
+                    None
+                )
+
+                if value is not None:
+
+                    value = str(
+                        value
+                    ).strip()
+
+                    if value:
+                        existing[field] = value
+
+            for field in [
+                "affection",
+                "trust",
+                "respect"
+            ]:
+
+                change = safe_number(
+                    raw_npc.get(
+                        field + "_change",
+                        0
+                    )
+                )
+
+                change = max(
+                    -10,
+                    min(
+                        10,
+                        change
+                    )
+                )
+
+                existing[field] = max(
+                    0,
+                    min(
+                        100,
+                        existing.get(
+                            field,
+                            0
+                        ) + change
+                    )
+                )
+
+            continue
+
+        # ========================================================
+        # 新增人物
+        # ========================================================
+
+        keep = raw_npc.get(
+            "keep",
+            True
+        )
+
+        if not keep:
+            continue
+
+        new_npc = {
+
+            "name": name,
+
+            "role": str(
+                raw_npc.get(
+                    "role",
+                    "重要人物"
+                )
+            ).strip(),
+
+            "personality": str(
+                raw_npc.get(
+                    "personality",
+                    "個性未明"
+                )
+            ).strip(),
+
+            "relationship": str(
+                raw_npc.get(
+                    "relationship",
+                    "認識"
+                )
+            ).strip(),
+
+            # 新人物初始關係很低
+            "affection": 0,
+
+            "trust": 0,
+
+            "respect": 0,
+
+            "status": str(
+                raw_npc.get(
+                    "status",
+                    "活躍"
+                )
+            ).strip(),
+
+            "notes": str(
+                raw_npc.get(
+                    "notes",
+                    ""
+                )
+            ).strip()
+        }
+
+        # 第一次建立人物時，
+        # 只接受很小的初始變化
+        for field in [
+            "affection",
+            "trust",
+            "respect"
+        ]:
+
+            change = safe_number(
+                raw_npc.get(
+                    field + "_change",
+                    0
+                )
+            )
+
+            change = max(
+                0,
+                min(
+                    5,
+                    change
+                )
+            )
+
+            new_npc[field] = change
+
+        state["important_npcs"].append(
+            new_npc
+        )
 
 
 # ============================================================
-# ⑨ 套用數值
+# ⑨ 健康安全檢查
+# ============================================================
+
+def sanitize_health_change(result):
+
+    changes = result.get(
+        "changes",
+        {}
+    )
+
+    if not isinstance(
+        changes,
+        dict
+    ):
+        return
+
+    health_change = safe_number(
+        changes.get(
+            "health_change",
+            0
+        )
+    )
+
+    reason = str(
+        changes.get(
+            "health_reason",
+            ""
+        )
+    ).strip()
+
+    # 沒有理由就不能改健康
+    if health_change != 0 and not reason:
+
+        changes["health_change"] = 0
+        changes["health_reason"] = ""
+
+        return
+
+    # 正常生活不應該固定掉血。
+    #
+    # 只要 AI 沒有給出健康原因，
+    # 一律歸零。
+    if health_change == 0:
+
+        changes["health_change"] = 0
+        changes["health_reason"] = ""
+
+        return
+
+    # 限制單回合健康變化
+    changes["health_change"] = max(
+        -15,
+        min(
+            10,
+            health_change
+        )
+    )
+
+
+# ============================================================
+# ⑩ 套用數值
 # ============================================================
 
 def apply_changes(state, result):
 
+    # 先修正健康
+    sanitize_health_change(
+        result
+    )
+
     p = state["player"]
 
-    changes = result.get("changes", {})
+    changes = result.get(
+        "changes",
+        {}
+    )
 
-    if not isinstance(changes, dict):
+    if not isinstance(
+        changes,
+        dict
+    ):
         changes = {}
 
     fields = [
@@ -1407,7 +2018,10 @@ def apply_changes(state, result):
         key = field + "_change"
 
         value = safe_number(
-            changes.get(key, 0)
+            changes.get(
+                key,
+                0
+            )
         )
 
         if field in [
@@ -1418,14 +2032,20 @@ def apply_changes(state, result):
 
             value = max(
                 -100000,
-                min(100000, value)
+                min(
+                    100000,
+                    value
+                )
             )
 
         else:
 
             value = max(
                 -10,
-                min(10, value)
+                min(
+                    10,
+                    value
+                )
             )
 
         p[field] += value
@@ -1447,7 +2067,10 @@ def apply_changes(state, result):
 
     p["legal_business"] = max(
         0,
-        min(100, p["legal_business"])
+        min(
+            100,
+            p["legal_business"]
+        )
     )
 
     p["power"] = max(
@@ -1462,12 +2085,18 @@ def apply_changes(state, result):
 
     p["police_attention"] = max(
         0,
-        min(100, p["police_attention"])
+        min(
+            100,
+            p["police_attention"]
+        )
     )
 
     p["health"] = max(
         0,
-        min(100, p["health"])
+        min(
+            100,
+            p["health"]
+        )
     )
 
 
@@ -1480,7 +2109,10 @@ def apply_changes(state, result):
         {}
     )
 
-    if not isinstance(brothers, dict):
+    if not isinstance(
+        brothers,
+        dict
+    ):
         brothers = {}
 
     for name, data in brothers.items():
@@ -1488,7 +2120,10 @@ def apply_changes(state, result):
         if name not in state["brothers"]:
             continue
 
-        if not isinstance(data, dict):
+        if not isinstance(
+            data,
+            dict
+        ):
             continue
 
         b = state["brothers"][name]
@@ -1502,20 +2137,39 @@ def apply_changes(state, result):
             key = field + "_change"
 
             value = safe_number(
-                data.get(key, 0)
+                data.get(
+                    key,
+                    0
+                )
             )
 
             value = max(
                 -5,
-                min(5, value)
+                min(
+                    5,
+                    value
+                )
             )
 
             b[field] += value
 
             b[field] = max(
                 0,
-                min(100, b[field])
+                min(
+                    100,
+                    b[field]
+                )
             )
+
+
+    # ========================================================
+    # 重要 NPC
+    # ========================================================
+
+    apply_npc_changes(
+        state,
+        result
+    )
 
 
     # ========================================================
@@ -1527,13 +2181,11 @@ def apply_changes(state, result):
         {}
     )
 
-    if not isinstance(love_data, dict):
+    if not isinstance(
+        love_data,
+        dict
+    ):
         love_data = {}
-
-
-    # ========================================================
-    # 已存在戀愛角色
-    # ========================================================
 
     if state["love_interest"]:
 
@@ -1554,16 +2206,21 @@ def apply_changes(state, result):
 
             change = max(
                 -5,
-                min(5, change)
+                min(
+                    5,
+                    change
+                )
             )
 
             love[field] += change
 
             love[field] = max(
                 0,
-                min(100, love[field])
+                min(
+                    100,
+                    love[field]
+                )
             )
-
 
         affection = love["affection"]
 
@@ -1593,7 +2250,10 @@ def apply_changes(state, result):
     if (
         state["love_interest"] is None
         and
-        love_data.get("created", False)
+        love_data.get(
+            "created",
+            False
+        )
     ):
 
         p = state["player"]
@@ -1604,9 +2264,12 @@ def apply_changes(state, result):
             p["month"] > 2
         ):
 
-            name = safe_text(
-                love_data.get("name", "")
-            )
+            name = str(
+                love_data.get(
+                    "name",
+                    ""
+                )
+            ).strip()
 
             if name:
 
@@ -1615,16 +2278,15 @@ def apply_changes(state, result):
                     "name": name,
 
                     "personality":
-                        safe_text(
-                            love_data.get(
-                                "personality",
-                                "個性獨立"
-                            ),
+                        love_data.get(
+                            "personality",
                             "個性獨立"
                         ),
 
                     "affection": 1,
+
                     "trust": 1,
+
                     "respect": 1,
 
                     "relationship": "認識"
@@ -1640,20 +2302,24 @@ def apply_changes(state, result):
         []
     )
 
-    if isinstance(flags_add, list):
+    if isinstance(
+        flags_add,
+        list
+    ):
 
         for flag in flags_add:
 
             if (
-                isinstance(flag, str)
-                and
-                flag.strip()
+                isinstance(
+                    flag,
+                    str
+                )
                 and
                 flag not in state["flags"]
             ):
 
                 state["flags"].append(
-                    flag.strip()
+                    flag
                 )
 
 
@@ -1662,7 +2328,10 @@ def apply_changes(state, result):
         []
     )
 
-    if isinstance(flags_remove, list):
+    if isinstance(
+        flags_remove,
+        list
+    ):
 
         for flag in flags_remove:
 
@@ -1677,18 +2346,30 @@ def apply_changes(state, result):
     # 結局
     # ========================================================
 
-    if result.get("death", False):
+    if result.get(
+        "death",
+        False
+    ):
+
         p["alive"] = False
 
-    if result.get("arrested", False):
+    if result.get(
+        "arrested",
+        False
+    ):
+
         p["arrested"] = True
 
-    if result.get("listed", False):
+    if result.get(
+        "listed",
+        False
+    ):
+
         p["listed"] = True
 
 
 # ============================================================
-# ⑩ 世界時間
+# ⑪ 世界時間
 # ============================================================
 
 def world_tick(state):
@@ -1701,11 +2382,13 @@ def world_tick(state):
         income = int(
             p["legal_business"]
             *
-            random.randint(50, 150)
+            random.randint(
+                50,
+                150
+            )
         )
 
         p["cash"] += income
-
 
     # 公司成長
     if p["legal_business"] >= 10:
@@ -1713,17 +2396,16 @@ def world_tick(state):
         growth = int(
             p["legal_business"]
             *
-            random.randint(50, 200)
+            random.randint(
+                50,
+                200
+            )
         )
 
         p["company_value"] += growth
 
-
-    # 時間前進
     p["month"] += 1
 
-
-    # 跨年
     if p["month"] > 12:
 
         p["month"] = 1
@@ -1736,7 +2418,7 @@ def world_tick(state):
 
 
 # ============================================================
-# ⑪ 記憶
+# ⑫ 記憶
 # ============================================================
 
 def add_memory(
@@ -1757,11 +2439,9 @@ def add_memory(
             action,
 
         "result":
-            safe_text(
-                result.get(
-                    "action_result",
-                    ""
-                )
+            result.get(
+                "action_result",
+                ""
             )[-5000:]
     }
 
@@ -1769,7 +2449,9 @@ def add_memory(
         memory
     )
 
-    if len(state["history"]) > 40:
+    if len(
+        state["history"]
+    ) > 40:
 
         state["history"] = (
             state["history"][-40:]
@@ -1777,7 +2459,7 @@ def add_memory(
 
 
 # ============================================================
-# ⑫ 存檔
+# ⑬ 存檔
 # ============================================================
 
 def create_save_data(state):
@@ -1837,14 +2519,15 @@ def load_game_file(uploaded_file):
                 "存檔缺少兄弟資料。"
             )
 
-
-        # ====================================================
+        # ========================================================
         # 舊存檔相容
-        # ====================================================
+        # ========================================================
 
         defaults = {
 
             "love_interest": None,
+
+            "important_npcs": [],
 
             "flags": [],
 
@@ -1871,52 +2554,59 @@ def load_game_file(uploaded_file):
 
                 game[key] = value
 
-
-        # ====================================================
-        # 防止錯誤資料
-        # ====================================================
-
+        # 確保 important_npcs 是 list
         if not isinstance(
-            game.get("flags"),
+            game.get(
+                "important_npcs"
+            ),
             list
         ):
 
-            game["flags"] = []
+            game["important_npcs"] = []
 
+        # 清理舊 NPC 資料
+        clean_npcs = []
 
+        for npc in game["important_npcs"]:
+
+            normalized = normalize_npc(
+                npc
+            )
+
+            if normalized:
+
+                clean_npcs.append(
+                    normalized
+                )
+
+        game["important_npcs"] = clean_npcs
+
+        # 舊版本 current_choices
         if not isinstance(
-            game.get("history"),
-            list
-        ):
-
-            game["history"] = []
-
-
-        if not isinstance(
-            game.get("current_choices"),
+            game.get(
+                "current_choices"
+            ),
             list
         ):
 
             game["current_choices"] = []
 
-
         if not isinstance(
-            game.get("pending_next_choices"),
+            game.get(
+                "pending_next_choices"
+            ),
             list
         ):
 
             game["pending_next_choices"] = []
 
-
         return game
-
 
     except json.JSONDecodeError:
 
         raise ValueError(
             "存檔檔案不是有效的 JSON。"
         )
-
 
     except Exception as e:
 
@@ -1926,7 +2616,7 @@ def load_game_file(uploaded_file):
 
 
 # ============================================================
-# ⑬ CSS
+# ⑭ CSS
 # ============================================================
 
 st.markdown(
@@ -1964,6 +2654,13 @@ st.markdown(
         white-space: pre-wrap;
     }
 
+    .npc-box {
+        padding: 16px;
+        border-radius: 10px;
+        border: 1px solid #555;
+        margin-bottom: 10px;
+    }
+
     </style>
     """,
     unsafe_allow_html=True
@@ -1971,7 +2668,7 @@ st.markdown(
 
 
 # ============================================================
-# ⑭ Session State
+# ⑮ Session State
 # ============================================================
 
 if "game" not in st.session_state:
@@ -1990,7 +2687,7 @@ p = state["player"]
 
 
 # ============================================================
-# ⑮ 標題
+# ⑯ 標題
 # ============================================================
 
 st.markdown(
@@ -2005,7 +2702,7 @@ st.markdown(
 
 
 # ============================================================
-# ⑯ 存檔 / 讀檔
+# ⑰ 存檔 / 讀檔
 # ============================================================
 
 with st.expander("💾 存檔 / 讀檔"):
@@ -2019,7 +2716,6 @@ with st.expander("💾 存檔 / 讀檔"):
     )
 
     col_save, col_load = st.columns(2)
-
 
     with col_save:
 
@@ -2039,7 +2735,6 @@ with st.expander("💾 存檔 / 讀檔"):
 
             use_container_width=True
         )
-
 
     with col_load:
 
@@ -2076,7 +2771,6 @@ with st.expander("💾 存檔 / 讀檔"):
 
                     st.rerun()
 
-
                 except Exception as e:
 
                     st.error(
@@ -2085,7 +2779,7 @@ with st.expander("💾 存檔 / 讀檔"):
 
 
 # ============================================================
-# ⑰ 開始畫面
+# ⑱ 開始畫面
 # ============================================================
 
 if not state["game_started"]:
@@ -2130,7 +2824,6 @@ if not state["game_started"]:
         """
     )
 
-
     if st.button(
         "🎮 開始人生",
         type="primary",
@@ -2141,12 +2834,11 @@ if not state["game_started"]:
 
         st.rerun()
 
-
     st.stop()
 
 
 # ============================================================
-# ⑱ 結局
+# ⑲ 結局
 # ============================================================
 
 if not p["alive"]:
@@ -2222,16 +2914,14 @@ if p["listed"]:
 
 
 # ============================================================
-# ⑲ 狀態
+# ⑳ 狀態
 # ============================================================
 
 st.subheader(
     f"📅 {p['age']}歲・第{p['month']}個月"
 )
 
-
 col1, col2, col3, col4 = st.columns(4)
-
 
 with col1:
 
@@ -2240,7 +2930,6 @@ with col1:
         f"${int(p['cash']):,}"
     )
 
-
 with col2:
 
     st.metric(
@@ -2248,14 +2937,12 @@ with col2:
         f"${int(p['assets']):,}"
     )
 
-
 with col3:
 
     st.metric(
         "🏢 公司估值",
         f"${int(p['company_value']):,}"
     )
-
 
 with col4:
 
@@ -2267,14 +2954,12 @@ with col4:
 
 col1, col2, col3, col4 = st.columns(4)
 
-
 with col1:
 
     st.metric(
         "🏦 合法事業",
         f"{int(p['legal_business'])}/100"
     )
-
 
 with col2:
 
@@ -2283,14 +2968,12 @@ with col2:
         int(p["power"])
     )
 
-
 with col3:
 
     st.metric(
         "⭐ 聲望",
         int(p["reputation"])
     )
-
 
 with col4:
 
@@ -2301,7 +2984,7 @@ with col4:
 
 
 # ============================================================
-# ⑳ 三兄弟
+# ㉑ 三兄弟
 # ============================================================
 
 with st.expander("👊 三兄弟"):
@@ -2325,7 +3008,86 @@ with st.expander("👊 三兄弟"):
 
 
 # ============================================================
-# ㉑ 戀愛
+# ㉒ 重要人物
+# ============================================================
+
+important_npcs = state.get(
+    "important_npcs",
+    []
+)
+
+with st.expander(
+    f"👥 我認識的人（{len(important_npcs)}）"
+):
+
+    if not important_npcs:
+
+        st.caption(
+            "目前還沒有值得長期記錄的重要人物。"
+        )
+
+        st.caption(
+            "普通路人、小混混與一次性角色不會被保存。"
+        )
+
+    else:
+
+        for npc in important_npcs:
+
+            st.markdown(
+                f"### {npc['name']}"
+            )
+
+            st.write(
+                f"**身分：** {npc['role']}"
+            )
+
+            st.write(
+                f"**關係：** {npc['relationship']}"
+            )
+
+            st.write(
+                f"**狀態：** {npc['status']}"
+            )
+
+            col_a, col_b, col_c = st.columns(3)
+
+            with col_a:
+
+                st.metric(
+                    "好感",
+                    f"{int(npc['affection'])}/100"
+                )
+
+            with col_b:
+
+                st.metric(
+                    "信任",
+                    f"{int(npc['trust'])}/100"
+                )
+
+            with col_c:
+
+                st.metric(
+                    "尊重",
+                    f"{int(npc['respect'])}/100"
+                )
+
+            st.caption(
+                f"性格：{npc['personality']}"
+            )
+
+            if npc.get("notes"):
+
+                st.caption(
+                    f"記憶：{npc['notes']}"
+                )
+
+            st.divider()
+
+
+# ============================================================
+# ㉓ 戀愛
 # ============================================================
 
 if state["love_interest"]:
@@ -2370,7 +3132,7 @@ else:
 
 
 # ============================================================
-# ㉒ 第一個月開場
+# ㉔ 第一個月開場
 # ============================================================
 
 if (
@@ -2393,37 +3155,36 @@ if (
                 prompt
             )
 
-            state["current_story"] = safe_text(
-                result.get(
-                    "story",
-                    "你的故事即將開始。"
-                ),
+            state["current_story"] = result.get(
+                "story",
                 "你的故事即將開始。"
             )
 
-            choices = result.get(
-                "choices",
-                []
+            state["current_choices"] = (
+                result.get(
+                    "choices",
+                    []
+                )
             )
 
             if not isinstance(
-                choices,
+                state["current_choices"],
                 list
             ):
 
-                choices = []
+                state["current_choices"] = []
 
-            state["current_choices"] = [
+            state["current_choices"] = (
+                state["current_choices"][:3]
+            )
 
-                safe_text(x)
-
-                for x in choices[:3]
-
-                if safe_text(x)
-            ]
+            # 第一個月通常不應該建立 NPC
+            apply_npc_changes(
+                state,
+                result
+            )
 
             state["phase"] = "playing"
-
 
         except Exception as e:
 
@@ -2435,7 +3196,7 @@ if (
 
 
 # ============================================================
-# ㉓ 本月劇情 / 行動
+# ㉕ 本月劇情 / 行動
 # ============================================================
 
 if state["phase"] == "playing":
@@ -2444,14 +3205,13 @@ if state["phase"] == "playing":
         f"📖 {p['age']}歲・第{p['month']}個月"
     )
 
-
     story_text = html.escape(
-        safe_text(
-            state["current_story"],
+        str(
+            state["current_story"]
+            or
             "你的故事即將開始。"
         )
     )
-
 
     st.markdown(
         f"""
@@ -2480,7 +3240,6 @@ if state["phase"] == "playing":
 
         choice_cols = st.columns(3)
 
-
         for i, choice in enumerate(
             choices[:3]
         ):
@@ -2498,10 +3257,6 @@ if state["phase"] == "playing":
                     use_container_width=True
                 ):
 
-                    # 注意：
-                    # 不再修改任何已經建立的 widget state。
-                    # 只修改 selected_action。
-
                     st.session_state.selected_action = (
                         str(choice)
                     )
@@ -2517,12 +3272,10 @@ if state["phase"] == "playing":
         "### ✍️ 自由行動"
     )
 
-
     selected_action = st.session_state.get(
         "selected_action",
         ""
     )
-
 
     with st.form(
         "action_form",
@@ -2544,7 +3297,6 @@ if state["phase"] == "playing":
             height=130
         )
 
-
         submitted = st.form_submit_button(
             "⚡ 執行行動",
             type="primary",
@@ -2560,13 +3312,11 @@ if state["phase"] == "playing":
 
         action = action.strip()
 
-
         if not action:
 
             st.warning(
                 "請先輸入你的行動。"
             )
-
 
         else:
 
@@ -2584,7 +3334,6 @@ if state["phase"] == "playing":
                     result = call_ai(
                         prompt
                     )
-
 
                 except Exception as e:
 
@@ -2617,32 +3366,28 @@ if state["phase"] == "playing":
 
 
             # ==================================================
-            # 下一個月劇情
+            # 儲存下一個月劇情
             # ==================================================
 
-            next_story = safe_text(
-                result.get(
-                    "next_month_story",
-                    ""
-                )
+            next_story = result.get(
+                "next_month_story",
+                ""
             )
 
-
-            if not next_story:
+            if (
+                not isinstance(
+                    next_story,
+                    str
+                )
+                or
+                not next_story.strip()
+            ):
 
                 next_story = (
-                    "新的一個月開始了。\n\n"
-                    "上個月留下的事情並沒有真正結束。"
-                    "街上的氣氛比之前更加微妙，"
-                    "而你身邊的人也開始注意到一些新的變化。"
-                    "\n\n"
-                    "阿豪沒有急著說話，只是把自己知道的消息重新整理了一遍。"
-                    "阿龍看著你，似乎在等你的判斷。"
-                    "阿虎則顯得有些不耐煩。"
-                    "\n\n"
-                    "新的局面已經出現，而下一步仍然掌握在你手上。"
+                    "新的一個月開始了。"
+                    "上個月留下的事情並沒有真正結束，"
+                    "而新的變化正在慢慢浮現。"
                 )
-
 
             state["pending_next_story"] = (
                 next_story.strip()
@@ -2650,14 +3395,13 @@ if state["phase"] == "playing":
 
 
             # ==================================================
-            # 下一個月選項
+            # 儲存下一個月選項
             # ==================================================
 
             next_choices = result.get(
                 "choices",
                 []
             )
-
 
             if not isinstance(
                 next_choices,
@@ -2666,37 +3410,30 @@ if state["phase"] == "playing":
 
                 next_choices = []
 
-
             state["pending_next_choices"] = [
-
-                safe_text(x)
-
+                str(x)
                 for x in next_choices[:3]
-
-                if safe_text(x)
+                if str(x).strip()
             ]
 
 
             # ==================================================
-            # 本月行動結果
+            # 儲存本月行動結果
             # ==================================================
 
-            action_result = safe_text(
-                result.get(
-                    "action_result",
-                    ""
-                )
+            action_result = result.get(
+                "action_result",
+                "這個行動產生了一些變化。"
             )
 
+            if not isinstance(
+                action_result,
+                str
+            ):
 
-            if not action_result:
-
-                action_result = (
-                    "你的行動暫時告一段落。"
-                    "雖然表面上沒有立即出現巨大的變化，"
-                    "但這次選擇已經開始影響接下來的局勢。"
+                action_result = str(
+                    action_result
                 )
-
 
             state["pending_result"] = (
                 action_result
@@ -2704,7 +3441,7 @@ if state["phase"] == "playing":
 
 
             # ==================================================
-            # 畫面切換
+            # 覆蓋目前畫面
             # ==================================================
 
             state["current_story"] = (
@@ -2712,29 +3449,21 @@ if state["phase"] == "playing":
             )
 
 
+            # ==================================================
+            # 本月結果不顯示下個月劇情
+            # ==================================================
+
             state["current_choices"] = []
 
-
-            state["phase"] = (
-                "action_result"
-            )
-
-
-            # ==================================================
-            # 重要：
-            # 不修改任何已建立的 Streamlit widget key。
-            #
-            # 只清除我們自己的 selected_action。
-            # ==================================================
+            state["phase"] = "action_result"
 
             st.session_state.selected_action = ""
-
 
             st.rerun()
 
 
 # ============================================================
-# ㉔ 行動結果
+# ㉖ 行動結果
 # ============================================================
 
 if state["phase"] == "action_result":
@@ -2743,14 +3472,13 @@ if state["phase"] == "action_result":
         "🎬 本月行動結果"
     )
 
-
     result_text = html.escape(
-        safe_text(
-            state["pending_result"],
+        str(
+            state["pending_result"]
+            or
             "這個行動產生了一些變化。"
         )
     )
-
 
     st.markdown(
         f"""
@@ -2761,9 +3489,7 @@ if state["phase"] == "action_result":
         unsafe_allow_html=True
     )
 
-
     st.divider()
-
 
     st.info(
         "本月行動已結束。"
@@ -2787,33 +3513,28 @@ if state["phase"] == "action_result":
 
 
         # ====================================================
-        # 顯示上一回合已經生成好的
-        # next_month_story
+        # 顯示之前已經生成好的 next_month_story
         #
         # 不再次呼叫 AI
         # ====================================================
 
-        state["current_story"] = safe_text(
-            state.get(
-                "pending_next_story",
-                ""
-            ),
+        state["current_story"] = (
+            state["pending_next_story"]
+            or
             "新的一個月開始了。"
         )
 
 
         # ====================================================
-        # 顯示上一回合已經生成好的 choices
+        # 下一個月選項
         # ====================================================
 
         state["current_choices"] = (
-
             state.get(
                 "pending_next_choices",
                 []
             )
         )
-
 
         if not isinstance(
             state["current_choices"],
@@ -2822,19 +3543,13 @@ if state["phase"] == "action_result":
 
             state["current_choices"] = []
 
-
-        state["current_choices"] = [
-
-            safe_text(x)
-
-            for x in state["current_choices"][:3]
-
-            if safe_text(x)
-        ]
+        state["current_choices"] = (
+            state["current_choices"][:3]
+        )
 
 
         # ====================================================
-        # 清理暫存
+        # 清理上一回合暫存
         # ====================================================
 
         state["pending_result"] = None
@@ -2856,7 +3571,7 @@ if state["phase"] == "action_result":
 
 
 # ============================================================
-# ㉕ 人生記錄
+# ㉗ 人生記錄
 # ============================================================
 
 with st.expander("📜 人生記錄"):
@@ -2890,11 +3605,10 @@ with st.expander("📜 人生記錄"):
 
 
 # ============================================================
-# ㉖ 重新開始
+# ㉘ 重新開始
 # ============================================================
 
 st.divider()
-
 
 if st.button(
     "🔄 重新開始人生",
