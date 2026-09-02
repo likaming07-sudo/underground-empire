@@ -5,46 +5,44 @@ import time
 import html
 from google import genai
 
-============================================================
 
-① 網頁設定
-
-============================================================
+# ============================================================
+# ① 網頁設定
+# ============================================================
 
 st.set_page_config(
-page_title="地下帝國：模擬人生",
-page_icon="👑",
-layout="wide"
+    page_title="地下帝國：模擬人生",
+    page_icon="👑",
+    layout="wide"
 )
 
-============================================================
 
-② Gemini API
-
-============================================================
+# ============================================================
+# ② Gemini API
+# ============================================================
 
 try:
-API_KEY = st.secrets["GEMINI_API_KEY"]
+    API_KEY = st.secrets["GEMINI_API_KEY"]
 except Exception:
-API_KEY = None
+    API_KEY = None
 
 if not API_KEY:
-st.error("找不到 GEMINI_API_KEY")
-st.info(
-"請到 Streamlit Cloud → Settings → Secrets "
-"設定 GEMINI_API_KEY。"
-)
-st.stop()
+    st.error("找不到 GEMINI_API_KEY")
+    st.info(
+        "請到 Streamlit Cloud → Settings → Secrets "
+        "設定 GEMINI_API_KEY。"
+    )
+    st.stop()
+
 
 client = genai.Client(api_key=API_KEY)
 
 MODEL = "gemini-3.1-flash-lite"
 
-============================================================
 
-③ AI SYSTEM PROMPT
-
-============================================================
+# ============================================================
+# ③ AI SYSTEM PROMPT
+# ============================================================
 
 SYSTEM_PROMPT = r"""
 你是《地下帝國：模擬人生》的核心 AI Game Master。
@@ -75,6 +73,10 @@ SYSTEM_PROMPT = r"""
 遊戲會持續進行。
 
 只有玩家死亡時，遊戲才真正結束。
+
+============================================================
+【遊戲核心】
+============================================================
 
 這不是正經商業模擬器。
 
@@ -155,6 +157,11 @@ SYSTEM_PROMPT = r"""
 具體犯罪技巧
 現實犯罪執行方法
 
+
+============================================================
+【遊戲終點】
+============================================================
+
 遊戲沒有上市結局。
 
 公司上市：
@@ -190,6 +197,11 @@ death = true
 才代表玩家死亡。
 
 玩家死亡後程式才會顯示人生結束。
+
+
+============================================================
+【三兄弟】
+============================================================
 
 阿龍：
 
@@ -245,6 +257,11 @@ death = true
 「阿虎表示同意。」
 
 要根據性格寫出不同反應。
+
+
+============================================================
+【幫派系統】
+============================================================
 
 玩家可以在遊戲中：
 
@@ -313,6 +330,10 @@ gang_notes = ""
 
 不要因為下一回合而忘記。
 
+============================================================
+【幫派階級】
+============================================================
+
 幫派階級可以依劇情自然發展。
 
 例如：
@@ -340,6 +361,10 @@ gang_notes = ""
 不一定所有幫派都使用相同階級。
 
 AI可以依幫派文化合理命名。
+
+============================================================
+【世界幫派】
+============================================================
 
 世界中可以存在多個幫派。
 
@@ -371,6 +396,10 @@ notes
 
 如果玩家以前和某個幫派發生過衝突，
 下一次遇到時必須記得。
+
+============================================================
+【高層人物】
+============================================================
 
 玩家可以逐步認識：
 
@@ -413,6 +442,11 @@ notes
 其他重要人物
 
 認識更高層的人。
+
+
+============================================================
+【政治人物與官員】
+============================================================
 
 世界中可以存在：
 
@@ -483,6 +517,10 @@ notes
 「你認識了某政客，所以以後什麼事情都能解決。」
 
 這是不合理的。
+
+============================================================
+【重要人物系統】
+============================================================
 
 不是所有 NPC 都要保存。
 
@@ -597,6 +635,11 @@ remove = true
 如果只是暫時離開，
 不要 remove。
 
+
+============================================================
+【世界運作】
+============================================================
+
 每個月是一個回合。
 
 玩家不是世界中心。
@@ -668,6 +711,11 @@ NPC也會自己生活。
 
 大型事件不能連續每個月發生。
 
+
+============================================================
+【玩家成長】
+============================================================
+
 玩家必須慢慢變強。
 
 不能：
@@ -702,6 +750,11 @@ NPC也會自己生活。
 
 政治人脈同樣必須逐步建立。
 
+
+============================================================
+【戀愛】
+============================================================
+
 玩家開局沒有女朋友。
 
 不要第一個月直接送女友。
@@ -734,6 +787,11 @@ NPC也會自己生活。
 
 不要自動讓玩家愛上她。
 
+
+============================================================
+【最重要：玩家行動】
+============================================================
+
 玩家輸入一個行動後，
 絕對不能只寫結果。
 
@@ -760,6 +818,11 @@ NPC也會自己生活。
 必須有「過程」。
 
 不要一句話把幾天甚至幾週全部跳掉。
+
+
+============================================================
+【action_result 劇情長度】
+============================================================
 
 普通事件：
 
@@ -790,6 +853,11 @@ NPC也會自己生活。
 
 不要一直用旁白快速跳過。
 
+
+============================================================
+【下一個月劇情】
+============================================================
+
 next_month_story：
 
 約300～600字。
@@ -815,6 +883,11 @@ next_month_story：
 
 不要替玩家做下一個重大決定。
 
+
+============================================================
+【三個選項】
+============================================================
+
 每個月劇情最後必須提供3個建議行動。
 
 三個選項必須有差異。
@@ -822,6 +895,11 @@ next_month_story：
 玩家也可以自己輸入文字。
 
 三個選項只是建議。
+
+
+============================================================
+【健康】
+============================================================
 
 健康不是每個月固定下降。
 
@@ -861,6 +939,11 @@ health_reason 必須清楚描述原因。
 health_change = 0
 health_reason = ""
 
+
+============================================================
+【不要替玩家做決定】
+============================================================
+
 玩家說：
 
 「我想去找豹哥談談。」
@@ -880,6 +963,11 @@ health_reason = ""
 
 AI只能描寫玩家指定的行動，
 以及其他 NPC 對玩家行動的反應。
+
+
+============================================================
+【劇情連貫性】
+============================================================
 
 必須參考：
 
@@ -907,19 +995,19 @@ current_gang
 如果玩家曾經得罪某個 NPC，
 不要讓該 NPC 下一次見面像第一次認識玩家。
 
+
+============================================================
+【重要人物更新】
+============================================================
+
 每次 AI 回應都要檢查：
 
-是否出現新的重要人物？
-
-如果有，加入 important_npcs。
-
-如果是已經存在的人物，更新資料。
-
-如果死亡或永久退場，remove=true。
-
-不重要的小角色不要加入。
-
-同一人物不能重複建立。
+1. 是否出現新的重要人物？
+2. 如果有，加入 important_npcs。
+3. 如果是已經存在的人物，更新資料。
+4. 如果死亡或永久退場，remove=true。
+5. 不重要的小角色不要加入。
+6. 同一人物不能重複建立。
 
 注意：
 
@@ -933,21 +1021,20 @@ important_npcs 不需要每回合重新列出全部人物。
 需要更新記憶的重要人物
 需要移除的重要人物
 
+
+============================================================
+【幫派資料更新】
+============================================================
+
 AI每回合都要檢查：
 
-玩家是否加入幫派？
-
-玩家是否離開幫派？
-
-玩家幫派職位是否改變？
-
-玩家在幫派中的地位是否改變？
-
-玩家與幫派忠誠是否改變？
-
-世界是否出現新的重要幫派？
-
-已知幫派是否有重大變化？
+1. 玩家是否加入幫派？
+2. 玩家是否離開幫派？
+3. 玩家幫派職位是否改變？
+4. 玩家在幫派中的地位是否改變？
+5. 玩家與幫派忠誠是否改變？
+6. 世界是否出現新的重要幫派？
+7. 已知幫派是否有重大變化？
 
 如果玩家沒有加入幫派：
 
@@ -967,6 +1054,10 @@ notes
 
 不要每回合亂改。
 
+============================================================
+【輸出】
+============================================================
+
 只輸出合法 JSON。
 
 不要 Markdown。
@@ -978,104 +1069,104 @@ notes
 格式：
 
 {
-"story": "本月完整開場劇情",
+  "story": "本月完整開場劇情",
 
-"action_result": "完整描寫玩家這次行動的過程、人物互動、對話、結果與後續影響",
+  "action_result": "完整描寫玩家這次行動的過程、人物互動、對話、結果與後續影響",
 
-"next_month_story": "下一個月完整開場劇情",
+  "next_month_story": "下一個月完整開場劇情",
 
-"choices": [
-"第一個建議行動",
-"第二個建議行動",
-"第三個建議行動"
-],
+  "choices": [
+    "第一個建議行動",
+    "第二個建議行動",
+    "第三個建議行動"
+  ],
 
-"changes": {
-"cash_change": 0,
-"assets_change": 0,
-"company_value_change": 0,
-"legal_business_change": 0,
-"power_change": 0,
-"reputation_change": 0,
-"police_attention_change": 0,
-"health_change": 0,
-"health_reason": ""
-},
+  "changes": {
+    "cash_change": 0,
+    "assets_change": 0,
+    "company_value_change": 0,
+    "legal_business_change": 0,
+    "power_change": 0,
+    "reputation_change": 0,
+    "police_attention_change": 0,
+    "health_change": 0,
+    "health_reason": ""
+  },
 
-"brothers": {
-"阿龍": {
-"loyalty_change": 0,
-"trust_change": 0,
-"respect_change": 0
-},
-"阿虎": {
-"loyalty_change": 0,
-"trust_change": 0,
-"respect_change": 0
-},
-"阿豪": {
-"loyalty_change": 0,
-"trust_change": 0,
-"respect_change": 0
-}
-},
+  "brothers": {
+    "阿龍": {
+      "loyalty_change": 0,
+      "trust_change": 0,
+      "respect_change": 0
+    },
+    "阿虎": {
+      "loyalty_change": 0,
+      "trust_change": 0,
+      "respect_change": 0
+    },
+    "阿豪": {
+      "loyalty_change": 0,
+      "trust_change": 0,
+      "respect_change": 0
+    }
+  },
 
-"gang_update": {
-"changed": false,
-"name": "",
-"role": "",
-"rank": "",
-"loyalty_change": 0,
-"respect_change": 0,
-"notes": "",
-"leave": false
-},
+  "gang_update": {
+    "changed": false,
+    "name": "",
+    "role": "",
+    "rank": "",
+    "loyalty_change": 0,
+    "respect_change": 0,
+    "notes": "",
+    "leave": false
+  },
 
-"gangs_update": [
-{
-"name": "",
-"type": "",
-"leader": "",
-"power_change": 0,
-"reputation_change": 0,
-"territory": "",
-"relationship": "",
-"notes": "",
-"keep": true,
-"remove": false
-}
-],
+  "gangs_update": [
+    {
+      "name": "",
+      "type": "",
+      "leader": "",
+      "power_change": 0,
+      "reputation_change": 0,
+      "territory": "",
+      "relationship": "",
+      "notes": "",
+      "keep": true,
+      "remove": false
+    }
+  ],
 
-"important_npcs": [
-{
-"name": "",
-"role": "",
-"personality": "",
-"relationship": "",
-"affection_change": 0,
-"trust_change": 0,
-"respect_change": 0,
-"status": "活躍",
-"notes": "",
-"keep": true,
-"remove": false
-}
-],
+  "important_npcs": [
+    {
+      "name": "",
+      "role": "",
+      "personality": "",
+      "relationship": "",
+      "affection_change": 0,
+      "trust_change": 0,
+      "respect_change": 0,
+      "status": "活躍",
+      "notes": "",
+      "keep": true,
+      "remove": false
+    }
+  ],
 
-"love": {
-"created": false,
-"name": "",
-"personality": "",
-"affection_change": 0,
-"trust_change": 0,
-"respect_change": 0
-},
+  "love": {
+    "created": false,
+    "name": "",
+    "personality": "",
+    "affection_change": 0,
+    "trust_change": 0,
+    "respect_change": 0
+  },
 
-"flags_add": [],
-"flags_remove": [],
+  "flags_add": [],
+  "flags_remove": [],
 
-"death": false,
-"arrested": false
+  "death": false,
+  "arrested": false
 }
 
 注意：
@@ -1090,265 +1181,538 @@ listed 可以由程式記錄，
 只輸出 JSON。
 """
 
-============================================================
 
-④ 新遊戲
-
-============================================================
+# ============================================================
+# ④ 新遊戲
+# ============================================================
 
 def new_game():
 
-return {
-    "save_version": 6,
+    return {
+        "save_version": 6,
 
-    "player": {
-        "name": "你",
-        "age": 18,
-        "month": 1,
-
-        "cash": 0,
-        "assets": 0,
-        "company_value": 0,
-
-        "legal_business": 0,
-        "power": 0,
-        "reputation": 0,
-
-        "police_attention": 0,
-        "health": 100,
-
-        "alive": True,
-        "arrested": False,
-        "listed": False
-    },
-
-    "brothers": {
-
-        "阿龍": {
+        "player": {
+            "name": "你",
             "age": 18,
-            "loyalty": 88,
-            "trust": 80,
-            "respect": 80,
-            "ability": 65,
-            "personality": "沉穩、重義氣、保護兄弟"
+            "month": 1,
+
+            "cash": 0,
+            "assets": 0,
+            "company_value": 0,
+
+            "legal_business": 0,
+            "power": 0,
+            "reputation": 0,
+
+            "police_attention": 0,
+            "health": 100,
+
+            "alive": True,
+            "arrested": False,
+            "listed": False
         },
 
-        "阿虎": {
-            "age": 18,
-            "loyalty": 78,
-            "trust": 70,
-            "respect": 72,
-            "ability": 75,
-            "personality": "衝動、好勝、敢冒險"
-        },
+        "brothers": {
 
-        "阿豪": {
-            "age": 18,
-            "loyalty": 92,
-            "trust": 85,
-            "respect": 86,
-            "ability": 58,
-            "personality": "冷靜、聰明、擅長分析"
-        }
-    },
+            "阿龍": {
+                "age": 18,
+                "loyalty": 88,
+                "trust": 80,
+                "respect": 80,
+                "ability": 65,
+                "personality": "沉穩、重義氣、保護兄弟"
+            },
 
-    # ========================================================
-    # 玩家目前所屬幫派
-    # ========================================================
+            "阿虎": {
+                "age": 18,
+                "loyalty": 78,
+                "trust": 70,
+                "respect": 72,
+                "ability": 75,
+                "personality": "衝動、好勝、敢冒險"
+            },
 
-    "current_gang": {
-        "name": "",
-        "role": "無",
-        "rank": "無",
-        "loyalty": 0,
-        "respect": 0,
-        "notes": ""
-    },
-
-    # ========================================================
-    # 世界已知幫派
-    # ========================================================
-
-    "gangs": [],
-
-    # ========================================================
-    # 重要人物
-    # ========================================================
-
-    "important_npcs": [],
-
-    "love_interest": None,
-
-    "flags": [],
-    "history": [],
-
-    "current_story": None,
-
-    "pending_result": None,
-
-    "pending_next_story": None,
-
-    "pending_next_choices": [],
-
-    "current_choices": [],
-
-    "phase": "playing",
-
-    "game_started": False
-}
-
-============================================================
-
-⑤ Gemini AI
-
-============================================================
-
-def call_ai(prompt, retries=2):
-
-for attempt in range(retries):
-
-    try:
-
-        response = client.models.generate_content(
-            model=MODEL,
-            contents=prompt,
-            config={
-                "system_instruction": SYSTEM_PROMPT,
-                "response_mime_type": "application/json"
+            "阿豪": {
+                "age": 18,
+                "loyalty": 92,
+                "trust": 85,
+                "respect": 86,
+                "ability": 58,
+                "personality": "冷靜、聰明、擅長分析"
             }
-        )
+        },
 
-        if not response.text:
-            raise RuntimeError("AI 沒有返回內容")
+        # ========================================================
+        # 玩家目前所屬幫派
+        # ========================================================
 
-        text = response.text.strip()
+        "current_gang": {
+            "name": "",
+            "role": "無",
+            "rank": "無",
+            "loyalty": 0,
+            "respect": 0,
+            "notes": ""
+        },
 
-        if text.startswith("```json"):
-            text = text[7:]
+        # ========================================================
+        # 世界已知幫派
+        # ========================================================
 
-        elif text.startswith("```"):
-            text = text[3:]
+        "gangs": [],
 
-        if text.endswith("```"):
-            text = text[:-3]
+        # ========================================================
+        # 重要人物
+        # ========================================================
 
-        text = text.strip()
+        "important_npcs": [],
 
-        result = json.loads(text)
+        "love_interest": None,
 
-        if not isinstance(result, dict):
-            raise RuntimeError(
-                "AI 返回的資料格式不是 JSON 物件。"
+        "flags": [],
+        "history": [],
+
+        "current_story": None,
+
+        "pending_result": None,
+
+        "pending_next_story": None,
+
+        "pending_next_choices": [],
+
+        "current_choices": [],
+
+        "phase": "playing",
+
+        "game_started": False
+    }
+
+
+# ============================================================
+# ⑤ Gemini AI
+# ============================================================
+
+def call_ai(prompt, retries=5):
+
+    for attempt in range(retries):
+
+        try:
+
+            response = client.models.generate_content(
+                model=MODEL,
+                contents=prompt,
+                config={
+                    "system_instruction": SYSTEM_PROMPT,
+                    "response_mime_type": "application/json"
+                }
             )
 
-        return result
+            if not response.text:
+                raise RuntimeError(
+                    "AI 沒有返回內容"
+                )
 
-    except json.JSONDecodeError as e:
+            text = response.text.strip()
 
-        if attempt < retries - 1:
-            time.sleep(2)
-            continue
+            if text.startswith("```json"):
+                text = text[7:]
 
-        raise RuntimeError(
-            f"AI 回傳的 JSON 格式錯誤：{e}"
-        )
+            elif text.startswith("```"):
+                text = text[3:]
 
-    except Exception as e:
+            if text.endswith("```"):
+                text = text[:-3]
 
-        error_text = str(e)
+            text = text.strip()
 
-        if (
-            "429" in error_text
-            or
-            "RESOURCE_EXHAUSTED" in error_text
-        ):
+            result = json.loads(text)
+
+            if not isinstance(result, dict):
+
+                raise RuntimeError(
+                    "AI 返回的資料格式不是 JSON 物件。"
+                )
+
+            return result
+
+        except json.JSONDecodeError as e:
 
             if attempt < retries - 1:
-                time.sleep(3)
+
+                time.sleep(
+                    2 + random.uniform(
+                        0,
+                        0.8
+                    )
+                )
+
                 continue
 
             raise RuntimeError(
-                "Gemini 免費額度已達上限。\n\n"
-                "請稍後再試。"
+                f"AI 回傳的 JSON 格式錯誤：{e}"
             )
 
-        if "404" in error_text:
+        except Exception as e:
+
+            error_text = str(e)
+
+            # ====================================================
+            # 503 / 暫時性 Gemini 服務錯誤
+            # ====================================================
+
+            if (
+                "503" in error_text
+                or
+                "UNAVAILABLE" in error_text
+                or
+                "SERVICE_UNAVAILABLE" in error_text
+                or
+                "500" in error_text
+                or
+                "502" in error_text
+                or
+                "504" in error_text
+            ):
+
+                if attempt < retries - 1:
+
+                    # 指數退避：
+                    # 第1次約 1～2秒
+                    # 第2次約 2～3秒
+                    # 第3次約 4～5秒
+                    # 第4次約 8～9秒
+
+                    wait_time = min(
+                        20,
+                        2 ** attempt
+                    ) + random.uniform(
+                        0,
+                        0.8
+                    )
+
+                    time.sleep(
+                        wait_time
+                    )
+
+                    continue
+
+                raise RuntimeError(
+                    "Gemini 目前暫時無法提供服務。\n\n"
+                    "這通常是 Gemini 暫時繁忙或服務暫時不可用，"
+                    "不是你的遊戲存檔損壞。\n\n"
+                    "請稍後再試。"
+                )
+
+            # ====================================================
+            # 429 / 使用量或頻率限制
+            # ====================================================
+
+            if (
+                "429" in error_text
+                or
+                "RESOURCE_EXHAUSTED" in error_text
+            ):
+
+                if attempt < retries - 1:
+
+                    wait_time = min(
+                        20,
+                        3 * (2 ** attempt)
+                    ) + random.uniform(
+                        0,
+                        0.8
+                    )
+
+                    time.sleep(
+                        wait_time
+                    )
+
+                    continue
+
+                raise RuntimeError(
+                    "Gemini API 目前受到使用量或頻率限制。\n\n"
+                    "請稍後再試。"
+                )
+
+            # ====================================================
+            # 404
+            # ====================================================
+
+            if "404" in error_text:
+
+                raise RuntimeError(
+                    "Gemini 模型 gemini-3.1-flash-lite 無法使用。\n\n"
+                    "請確認 Gemini API Key 有權限使用此模型。"
+                )
+
+            # ====================================================
+            # 401 / 403
+            # ====================================================
+
+            if (
+                "401" in error_text
+                or
+                "403" in error_text
+            ):
+
+                raise RuntimeError(
+                    "Gemini API Key 無效或沒有 API 權限。"
+                )
+
+            # ====================================================
+            # 其他暫時性錯誤
+            # ====================================================
+
+            if attempt < retries - 1:
+
+                wait_time = min(
+                    10,
+                    2 ** attempt
+                ) + random.uniform(
+                    0,
+                    0.8
+                )
+
+                time.sleep(
+                    wait_time
+                )
+
+                continue
 
             raise RuntimeError(
-                "Gemini 模型 gemini-3.1-flash-lite 無法使用。\n\n"
-                "請確認 Gemini API Key 有權限使用此模型。"
+                f"AI 發生錯誤：{error_text}"
             )
 
-        if (
-            "401" in error_text
-            or
-            "403" in error_text
+    raise RuntimeError(
+        "AI 暫時無法使用。"
+    )
+
+
+# ============================================================
+# ⑥ AI 記憶壓縮
+# ============================================================
+
+def build_ai_memory(state):
+
+    recent_history = []
+
+    # --------------------------------------------------------
+    # 只讓 AI 讀最近 5 回合
+    #
+    # 注意：
+    # state["history"] 完整保留。
+    # 這裡只是建立「送給 Gemini 的版本」。
+    # --------------------------------------------------------
+
+    for memory in state.get(
+        "history",
+        []
+    )[-5:]:
+
+        recent_history.append({
+
+            "age":
+                memory.get(
+                    "age"
+                ),
+
+            "month":
+                memory.get(
+                    "month"
+                ),
+
+            "action":
+                str(
+                    memory.get(
+                        "action",
+                        ""
+                    )
+                )[:700],
+
+            "result":
+                str(
+                    memory.get(
+                        "result",
+                        ""
+                    )
+                )[:2200]
+        })
+
+
+    # --------------------------------------------------------
+    # 重要 NPC
+    # --------------------------------------------------------
+
+    important_npcs = []
+
+    for npc in state.get(
+        "important_npcs",
+        []
+    ):
+
+        if not isinstance(
+            npc,
+            dict
         ):
-
-            raise RuntimeError(
-                "Gemini API Key 無效或沒有 API 權限。"
-            )
-
-        if attempt < retries - 1:
-            time.sleep(2)
             continue
 
-        raise RuntimeError(
-            f"AI 發生錯誤：{error_text}"
+        npc_copy = dict(
+            npc
         )
 
-raise RuntimeError("AI 暫時無法使用。")
+        npc_copy["notes"] = str(
+            npc_copy.get(
+                "notes",
+                ""
+            )
+        )[:700]
 
-============================================================
+        important_npcs.append(
+            npc_copy
+        )
 
-⑥ 建立 AI Prompt
 
-============================================================
+    # --------------------------------------------------------
+    # 世界幫派
+    # --------------------------------------------------------
+
+    gangs = []
+
+    for gang in state.get(
+        "gangs",
+        []
+    ):
+
+        if not isinstance(
+            gang,
+            dict
+        ):
+            continue
+
+        gang_copy = dict(
+            gang
+        )
+
+        gang_copy["notes"] = str(
+            gang_copy.get(
+                "notes",
+                ""
+            )
+        )[:700]
+
+        gangs.append(
+            gang_copy
+        )
+
+
+    # --------------------------------------------------------
+    # 玩家目前幫派
+    # --------------------------------------------------------
+
+    current_gang = dict(
+        state.get(
+            "current_gang",
+            {}
+        )
+    )
+
+    current_gang["notes"] = str(
+        current_gang.get(
+            "notes",
+            ""
+        )
+    )[:1000]
+
+
+    # --------------------------------------------------------
+    # 回傳 AI 使用的精簡記憶
+    # --------------------------------------------------------
+
+    return {
+
+        "recent_history":
+            recent_history,
+
+        "important_npcs":
+            important_npcs,
+
+        "gangs":
+            gangs,
+
+        "current_gang":
+            current_gang,
+
+        "love_interest":
+            state.get(
+                "love_interest"
+            ),
+
+        "flags":
+            state.get(
+                "flags",
+                []
+            )
+    }
+
+
+# ============================================================
+# ⑦ 建立 AI Prompt
+# ============================================================
 
 def build_turn_prompt(state, action=None):
 
-p = state["player"]
+    p = state["player"]
 
-data = {
-    "current_date": {
-        "age": p["age"],
-        "month": p["month"]
-    },
+    ai_memory = build_ai_memory(
+        state
+    )
 
-    "player": p,
+    data = {
 
-    "brothers": state["brothers"],
+        "current_date": {
+            "age": p["age"],
+            "month": p["month"]
+        },
 
-    "current_gang": state.get(
-        "current_gang",
-        {}
-    ),
+        "player": p,
 
-    "gangs": state.get(
-        "gangs",
-        []
-    ),
+        "brothers": state["brothers"],
 
-    "important_npcs": state.get(
-        "important_npcs",
-        []
-    ),
+        "current_gang":
+            ai_memory["current_gang"],
 
-    "love_interest": state["love_interest"],
+        "gangs":
+            ai_memory["gangs"],
 
-    "flags": state["flags"],
+        "important_npcs":
+            ai_memory["important_npcs"],
 
-    "recent_history": state["history"][-10:],
+        "love_interest":
+            ai_memory["love_interest"],
 
-    "current_story": state["current_story"],
+        "flags":
+            ai_memory["flags"],
 
-    "player_action": action
-}
+        "recent_history":
+            ai_memory["recent_history"],
 
-if action:
+        # 完整 current_story 仍然保存在 state。
+        # 这里只限制送給 AI 的長度。
+        "current_story":
+            str(
+                state.get(
+                    "current_story",
+                    ""
+                )
+            )[:6000],
 
-    data["task"] = """
+        "player_action":
+            action
+    }
 
+    if action:
+
+        data["task"] = """
 玩家剛剛在本月劇情中做出了以下行動：
 
 【玩家行動】
@@ -1373,6 +1737,10 @@ recent_history
 如果玩家主動接觸高層、政治人物、官員或其他重要人物，
 必須根據玩家現有的人脈與地位判斷是否合理。
 
+============================================================
+【action_result】
+============================================================
+
 action_result 必須是完整小說式劇情。
 
 普通事件至少700字左右。
@@ -1383,37 +1751,28 @@ action_result 必須是完整小說式劇情。
 
 必須描寫：
 
-玩家準備做什麼
-
-玩家去了哪裡
-
-誰陪著玩家
-
-到達之後看到什麼
-
-見到了誰
-
-NPC第一反應
-
-三兄弟各自的反應
-
-雙方對話
-
-玩家做出的行動
-
-NPC如何回應
-
-局勢如何一步一步發展
-
-中間可以出現新的小變化
-
-最後結果
-
-對未來產生什麼影響
+1. 玩家準備做什麼
+2. 玩家去了哪裡
+3. 誰陪著玩家
+4. 到達之後看到什麼
+5. 見到了誰
+6. NPC第一反應
+7. 三兄弟各自的反應
+8. 雙方對話
+9. 玩家做出的行動
+10. NPC如何回應
+11. 局勢如何一步一步發展
+12. 中間可以出現新的小變化
+13. 最後結果
+14. 對未來產生什麼影響
 
 不要只寫結果。
 
 不要替玩家做出沒有說過的重大決定。
+
+============================================================
+【幫派】
+============================================================
 
 如果玩家的行動與幫派有關：
 
@@ -1437,6 +1796,10 @@ gang_update 才可以 changed=true。
 如果玩家離開幫派，
 gang_update.leave=true。
 
+============================================================
+【政治人物】
+============================================================
+
 如果出現政治人物、官員或政治幕僚：
 
 只有真正重要的人物才加入 important_npcs。
@@ -1458,6 +1821,10 @@ gang_update.leave=true。
 保持距離、
 只進行普通交流。
 
+============================================================
+【next_month_story】
+============================================================
+
 約300～600字。
 
 重大事件可以600～800字。
@@ -1476,7 +1843,15 @@ gang_update.leave=true。
 
 最後停在需要玩家決定的地方。
 
+============================================================
+【choices】
+============================================================
+
 提供三個真正不同的行動。
+
+============================================================
+【健康】
+============================================================
 
 沒有健康事件：
 
@@ -1485,80 +1860,83 @@ health_reason = ""
 
 不能每個月固定扣健康。
 
+============================================================
+【輸出】
+============================================================
+
 只輸出合法 JSON。
 
 格式：
 
 {
-"story": "...",
-"action_result": "...",
-"next_month_story": "...",
-"choices": [
-"...",
-"...",
-"..."
-],
-"changes": {
-"cash_change": 0,
-"assets_change": 0,
-"company_value_change": 0,
-"legal_business_change": 0,
-"power_change": 0,
-"reputation_change": 0,
-"police_attention_change": 0,
-"health_change": 0,
-"health_reason": ""
-},
-"brothers": {
-"阿龍": {
-"loyalty_change": 0,
-"trust_change": 0,
-"respect_change": 0
-},
-"阿虎": {
-"loyalty_change": 0,
-"trust_change": 0,
-"respect_change": 0
-},
-"阿豪": {
-"loyalty_change": 0,
-"trust_change": 0,
-"respect_change": 0
-}
-},
-"gang_update": {
-"changed": false,
-"name": "",
-"role": "",
-"rank": "",
-"loyalty_change": 0,
-"respect_change": 0,
-"notes": "",
-"leave": false
-},
-"gangs_update": [],
-"important_npcs": [],
-"love": {
-"created": false,
-"name": "",
-"personality": "",
-"affection_change": 0,
-"trust_change": 0,
-"respect_change": 0
-},
-"flags_add": [],
-"flags_remove": [],
-"death": false,
-"arrested": false
+  "story": "...",
+  "action_result": "...",
+  "next_month_story": "...",
+  "choices": [
+    "...",
+    "...",
+    "..."
+  ],
+  "changes": {
+    "cash_change": 0,
+    "assets_change": 0,
+    "company_value_change": 0,
+    "legal_business_change": 0,
+    "power_change": 0,
+    "reputation_change": 0,
+    "police_attention_change": 0,
+    "health_change": 0,
+    "health_reason": ""
+  },
+  "brothers": {
+    "阿龍": {
+      "loyalty_change": 0,
+      "trust_change": 0,
+      "respect_change": 0
+    },
+    "阿虎": {
+      "loyalty_change": 0,
+      "trust_change": 0,
+      "respect_change": 0
+    },
+    "阿豪": {
+      "loyalty_change": 0,
+      "trust_change": 0,
+      "respect_change": 0
+    }
+  },
+  "gang_update": {
+    "changed": false,
+    "name": "",
+    "role": "",
+    "rank": "",
+    "loyalty_change": 0,
+    "respect_change": 0,
+    "notes": "",
+    "leave": false
+  },
+  "gangs_update": [],
+  "important_npcs": [],
+  "love": {
+    "created": false,
+    "name": "",
+    "personality": "",
+    "affection_change": 0,
+    "trust_change": 0,
+    "respect_change": 0
+  },
+  "flags_add": [],
+  "flags_remove": [],
+  "death": false,
+  "arrested": false
 }
 
 只輸出 JSON。
 """
 
-else:
+    else:
 
-    data["task"] = """
-
+        data["task"] = """
 這是新遊戲。
 
 請生成18歲第1個月的開場劇情。
@@ -1641,214 +2019,300 @@ arrested = false。
 只輸出 JSON。
 """
 
-return json.dumps(
-    data,
-    ensure_ascii=False
-)
+    return json.dumps(
+        data,
+        ensure_ascii=False
+    )
 
-============================================================
 
-⑦ 數值安全
-
-============================================================
+# ============================================================
+# ⑧ 數值安全
+# ============================================================
 
 def safe_number(value):
 
-if isinstance(value, bool):
+    if isinstance(value, bool):
+        return 0
+
+    if isinstance(value, (int, float)):
+        return value
+
     return 0
 
-if isinstance(value, (int, float)):
-    return value
 
-return 0
-
-============================================================
-
-⑧ NPC 工具
-
-============================================================
+# ============================================================
+# ⑨ NPC 工具
+# ============================================================
 
 def normalize_npc(npc):
 
-if not isinstance(npc, dict):
-    return None
-
-name = str(
-    npc.get("name", "")
-).strip()
-
-if not name:
-    return None
-
-return {
-    "name": name,
-
-    "role": str(
-        npc.get(
-            "role",
-            "重要人物"
-        )
-    ).strip(),
-
-    "personality": str(
-        npc.get(
-            "personality",
-            "個性未明"
-        )
-    ).strip(),
-
-    "relationship": str(
-        npc.get(
-            "relationship",
-            "認識"
-        )
-    ).strip(),
-
-    "affection": max(
-        0,
-        min(
-            100,
-            safe_number(
-                npc.get(
-                    "affection",
-                    0
-                )
-            )
-        )
-    ),
-
-    "trust": max(
-        0,
-        min(
-            100,
-            safe_number(
-                npc.get(
-                    "trust",
-                    0
-                )
-            )
-        )
-    ),
-
-    "respect": max(
-        0,
-        min(
-            100,
-            safe_number(
-                npc.get(
-                    "respect",
-                    0
-                )
-            )
-        )
-    ),
-
-    "status": str(
-        npc.get(
-            "status",
-            "活躍"
-        )
-    ).strip(),
-
-    "notes": str(
-        npc.get(
-            "notes",
-            ""
-        )
-    ).strip()
-}
-
-def find_npc(state, name):
-
-for npc in state.get(
-    "important_npcs",
-    []
-):
-
-    if npc.get("name") == name:
-        return npc
-
-return None
-
-def apply_npc_changes(state, result):
-
-npc_changes = result.get(
-    "important_npcs",
-    []
-)
-
-if not isinstance(
-    npc_changes,
-    list
-):
-    return
-
-if "important_npcs" not in state:
-    state["important_npcs"] = []
-
-for raw_npc in npc_changes:
-
-    if not isinstance(
-        raw_npc,
-        dict
-    ):
-        continue
+    if not isinstance(npc, dict):
+        return None
 
     name = str(
-        raw_npc.get(
-            "name",
-            ""
-        )
+        npc.get("name", "")
     ).strip()
 
     if not name:
-        continue
+        return None
 
-    remove = bool(
-        raw_npc.get(
-            "remove",
-            False
-        )
-    )
+    return {
+        "name": name,
 
-    existing = find_npc(
-        state,
-        name
-    )
-
-    if remove:
-
-        state["important_npcs"] = [
-            npc
-            for npc in state["important_npcs"]
-            if npc.get("name") != name
-        ]
-
-        continue
-
-    if existing:
-
-        for field in [
-            "role",
-            "personality",
-            "relationship",
-            "status",
-            "notes"
-        ]:
-
-            value = raw_npc.get(
-                field,
-                None
+        "role": str(
+            npc.get(
+                "role",
+                "重要人物"
             )
+        ).strip(),
 
-            if value is not None:
+        "personality": str(
+            npc.get(
+                "personality",
+                "個性未明"
+            )
+        ).strip(),
 
-                value = str(
-                    value
-                ).strip()
+        "relationship": str(
+            npc.get(
+                "relationship",
+                "認識"
+            )
+        ).strip(),
 
-                if value:
-                    existing[field] = value
+        "affection": max(
+            0,
+            min(
+                100,
+                safe_number(
+                    npc.get(
+                        "affection",
+                        0
+                    )
+                )
+            )
+        ),
+
+        "trust": max(
+            0,
+            min(
+                100,
+                safe_number(
+                    npc.get(
+                        "trust",
+                        0
+                    )
+                )
+            )
+        ),
+
+        "respect": max(
+            0,
+            min(
+                100,
+                safe_number(
+                    npc.get(
+                        "respect",
+                        0
+                    )
+                )
+            )
+        ),
+
+        "status": str(
+            npc.get(
+                "status",
+                "活躍"
+            )
+        ).strip(),
+
+        "notes": str(
+            npc.get(
+                "notes",
+                ""
+            )
+        ).strip()
+    }
+
+
+def find_npc(state, name):
+
+    for npc in state.get(
+        "important_npcs",
+        []
+    ):
+
+        if npc.get("name") == name:
+            return npc
+
+    return None
+
+
+def apply_npc_changes(state, result):
+
+    npc_changes = result.get(
+        "important_npcs",
+        []
+    )
+
+    if not isinstance(
+        npc_changes,
+        list
+    ):
+        return
+
+    if "important_npcs" not in state:
+        state["important_npcs"] = []
+
+    for raw_npc in npc_changes:
+
+        if not isinstance(
+            raw_npc,
+            dict
+        ):
+            continue
+
+        name = str(
+            raw_npc.get(
+                "name",
+                ""
+            )
+        ).strip()
+
+        if not name:
+            continue
+
+        remove = bool(
+            raw_npc.get(
+                "remove",
+                False
+            )
+        )
+
+        existing = find_npc(
+            state,
+            name
+        )
+
+        if remove:
+
+            state["important_npcs"] = [
+                npc
+                for npc in state["important_npcs"]
+                if npc.get("name") != name
+            ]
+
+            continue
+
+        if existing:
+
+            for field in [
+                "role",
+                "personality",
+                "relationship",
+                "status",
+                "notes"
+            ]:
+
+                value = raw_npc.get(
+                    field,
+                    None
+                )
+
+                if value is not None:
+
+                    value = str(
+                        value
+                    ).strip()
+
+                    if value:
+                        existing[field] = value
+
+            for field in [
+                "affection",
+                "trust",
+                "respect"
+            ]:
+
+                change = safe_number(
+                    raw_npc.get(
+                        field + "_change",
+                        0
+                    )
+                )
+
+                change = max(
+                    -10,
+                    min(
+                        10,
+                        change
+                    )
+                )
+
+                existing[field] = max(
+                    0,
+                    min(
+                        100,
+                        existing.get(
+                            field,
+                            0
+                        ) + change
+                    )
+                )
+
+            continue
+
+        keep = raw_npc.get(
+            "keep",
+            True
+        )
+
+        if not keep:
+            continue
+
+        new_npc = {
+
+            "name": name,
+
+            "role": str(
+                raw_npc.get(
+                    "role",
+                    "重要人物"
+                )
+            ).strip(),
+
+            "personality": str(
+                raw_npc.get(
+                    "personality",
+                    "個性未明"
+                )
+            ).strip(),
+
+            "relationship": str(
+                raw_npc.get(
+                    "relationship",
+                    "認識"
+                )
+            ).strip(),
+
+            "affection": 0,
+            "trust": 0,
+            "respect": 0,
+
+            "status": str(
+                raw_npc.get(
+                    "status",
+                    "活躍"
+                )
+            ).strip(),
+
+            "notes": str(
+                raw_npc.get(
+                    "notes",
+                    ""
+                )
+            ).strip()
+        }
 
         for field in [
             "affection",
@@ -1864,340 +2328,51 @@ for raw_npc in npc_changes:
             )
 
             change = max(
-                -10,
+                0,
                 min(
-                    10,
+                    5,
                     change
                 )
             )
 
-            existing[field] = max(
-                0,
-                min(
-                    100,
-                    existing.get(
-                        field,
-                        0
-                    ) + change
-                )
-            )
+            new_npc[field] = change
 
-        continue
-
-    keep = raw_npc.get(
-        "keep",
-        True
-    )
-
-    if not keep:
-        continue
-
-    new_npc = {
-
-        "name": name,
-
-        "role": str(
-            raw_npc.get(
-                "role",
-                "重要人物"
-            )
-        ).strip(),
-
-        "personality": str(
-            raw_npc.get(
-                "personality",
-                "個性未明"
-            )
-        ).strip(),
-
-        "relationship": str(
-            raw_npc.get(
-                "relationship",
-                "認識"
-            )
-        ).strip(),
-
-        "affection": 0,
-        "trust": 0,
-        "respect": 0,
-
-        "status": str(
-            raw_npc.get(
-                "status",
-                "活躍"
-            )
-        ).strip(),
-
-        "notes": str(
-            raw_npc.get(
-                "notes",
-                ""
-            )
-        ).strip()
-    }
-
-    for field in [
-        "affection",
-        "trust",
-        "respect"
-    ]:
-
-        change = safe_number(
-            raw_npc.get(
-                field + "_change",
-                0
-            )
+        state["important_npcs"].append(
+            new_npc
         )
 
-        change = max(
-            0,
-            min(
-                5,
-                change
-            )
-        )
 
-        new_npc[field] = change
-
-    state["important_npcs"].append(
-        new_npc
-    )
-
-============================================================
-
-⑨ 幫派工具
-
-============================================================
+# ============================================================
+# ⑩ 幫派工具
+# ============================================================
 
 def normalize_gang(gang):
 
-if not isinstance(gang, dict):
-    return None
-
-name = str(
-    gang.get(
-        "name",
-        ""
-    )
-).strip()
-
-if not name:
-    return None
-
-return {
-    "name": name,
-
-    "type": str(
-        gang.get(
-            "type",
-            "地方勢力"
-        )
-    ).strip(),
-
-    "leader": str(
-        gang.get(
-            "leader",
-            ""
-        )
-    ).strip(),
-
-    "power": max(
-        0,
-        safe_number(
-            gang.get(
-                "power",
-                0
-            )
-        )
-    ),
-
-    "reputation": max(
-        0,
-        safe_number(
-            gang.get(
-                "reputation",
-                0
-            )
-        )
-    ),
-
-    "territory": str(
-        gang.get(
-            "territory",
-            ""
-        )
-    ).strip(),
-
-    "relationship": str(
-        gang.get(
-            "relationship",
-            "陌生"
-        )
-    ).strip(),
-
-    "notes": str(
-        gang.get(
-            "notes",
-            ""
-        )
-    ).strip()
-}
-
-def find_gang(state, name):
-
-for gang in state.get(
-    "gangs",
-    []
-):
-
-    if gang.get("name") == name:
-        return gang
-
-return None
-
-def apply_gang_changes(state, result):
-
-if "gangs" not in state:
-    state["gangs"] = []
-
-updates = result.get(
-    "gangs_update",
-    []
-)
-
-if not isinstance(
-    updates,
-    list
-):
-    updates = []
-
-for raw_gang in updates:
-
-    if not isinstance(
-        raw_gang,
-        dict
-    ):
-        continue
+    if not isinstance(gang, dict):
+        return None
 
     name = str(
-        raw_gang.get(
+        gang.get(
             "name",
             ""
         )
     ).strip()
 
     if not name:
-        continue
+        return None
 
-    remove = bool(
-        raw_gang.get(
-            "remove",
-            False
-        )
-    )
-
-    existing = find_gang(
-        state,
-        name
-    )
-
-    if remove:
-
-        state["gangs"] = [
-            gang
-            for gang in state["gangs"]
-            if gang.get("name") != name
-        ]
-
-        continue
-
-    if existing:
-
-        for field in [
-            "type",
-            "leader",
-            "territory",
-            "relationship",
-            "notes"
-        ]:
-
-            value = raw_gang.get(
-                field,
-                None
-            )
-
-            if value is not None:
-
-                value = str(
-                    value
-                ).strip()
-
-                if value:
-                    existing[field] = value
-
-        existing["power"] = max(
-            0,
-            existing.get(
-                "power",
-                0
-            )
-            +
-            max(
-                -10,
-                min(
-                    10,
-                    safe_number(
-                        raw_gang.get(
-                            "power_change",
-                            0
-                        )
-                    )
-                )
-            )
-        )
-
-        existing["reputation"] = max(
-            0,
-            existing.get(
-                "reputation",
-                0
-            )
-            +
-            max(
-                -10,
-                min(
-                    10,
-                    safe_number(
-                        raw_gang.get(
-                            "reputation_change",
-                            0
-                        )
-                    )
-                )
-            )
-        )
-
-        continue
-
-    if not raw_gang.get(
-        "keep",
-        True
-    ):
-        continue
-
-    new_gang = {
-
+    return {
         "name": name,
 
         "type": str(
-            raw_gang.get(
+            gang.get(
                 "type",
                 "地方勢力"
             )
         ).strip(),
 
         "leader": str(
-            raw_gang.get(
+            gang.get(
                 "leader",
                 ""
             )
@@ -2206,8 +2381,8 @@ for raw_gang in updates:
         "power": max(
             0,
             safe_number(
-                raw_gang.get(
-                    "power_change",
+                gang.get(
+                    "power",
                     0
                 )
             )
@@ -2216,1721 +2391,2216 @@ for raw_gang in updates:
         "reputation": max(
             0,
             safe_number(
-                raw_gang.get(
-                    "reputation_change",
+                gang.get(
+                    "reputation",
                     0
                 )
             )
         ),
 
         "territory": str(
-            raw_gang.get(
+            gang.get(
                 "territory",
                 ""
             )
         ).strip(),
 
         "relationship": str(
-            raw_gang.get(
+            gang.get(
                 "relationship",
                 "陌生"
             )
         ).strip(),
 
         "notes": str(
-            raw_gang.get(
+            gang.get(
                 "notes",
                 ""
             )
         ).strip()
     }
 
-    state["gangs"].append(
-        new_gang
+
+def find_gang(state, name):
+
+    for gang in state.get(
+        "gangs",
+        []
+    ):
+
+        if gang.get("name") == name:
+            return gang
+
+    return None
+
+
+def apply_gang_changes(state, result):
+
+    if "gangs" not in state:
+        state["gangs"] = []
+
+    updates = result.get(
+        "gangs_update",
+        []
     )
 
+    if not isinstance(
+        updates,
+        list
+    ):
+        updates = []
+
+    for raw_gang in updates:
+
+        if not isinstance(
+            raw_gang,
+            dict
+        ):
+            continue
+
+        name = str(
+            raw_gang.get(
+                "name",
+                ""
+            )
+        ).strip()
+
+        if not name:
+            continue
+
+        remove = bool(
+            raw_gang.get(
+                "remove",
+                False
+            )
+        )
+
+        existing = find_gang(
+            state,
+            name
+        )
+
+        if remove:
+
+            state["gangs"] = [
+                gang
+                for gang in state["gangs"]
+                if gang.get("name") != name
+            ]
+
+            continue
+
+        if existing:
+
+            for field in [
+                "type",
+                "leader",
+                "territory",
+                "relationship",
+                "notes"
+            ]:
+
+                value = raw_gang.get(
+                    field,
+                    None
+                )
+
+                if value is not None:
+
+                    value = str(
+                        value
+                    ).strip()
+
+                    if value:
+                        existing[field] = value
+
+            existing["power"] = max(
+                0,
+                existing.get(
+                    "power",
+                    0
+                )
+                +
+                max(
+                    -10,
+                    min(
+                        10,
+                        safe_number(
+                            raw_gang.get(
+                                "power_change",
+                                0
+                            )
+                        )
+                    )
+                )
+            )
+
+            existing["reputation"] = max(
+                0,
+                existing.get(
+                    "reputation",
+                    0
+                )
+                +
+                max(
+                    -10,
+                    min(
+                        10,
+                        safe_number(
+                            raw_gang.get(
+                                "reputation_change",
+                                0
+                            )
+                        )
+                    )
+                )
+            )
+
+            continue
+
+        if not raw_gang.get(
+            "keep",
+            True
+        ):
+            continue
+
+        new_gang = {
+
+            "name": name,
+
+            "type": str(
+                raw_gang.get(
+                    "type",
+                    "地方勢力"
+                )
+            ).strip(),
+
+            "leader": str(
+                raw_gang.get(
+                    "leader",
+                    ""
+                )
+            ).strip(),
+
+            "power": max(
+                0,
+                safe_number(
+                    raw_gang.get(
+                        "power_change",
+                        0
+                    )
+                )
+            ),
+
+            "reputation": max(
+                0,
+                safe_number(
+                    raw_gang.get(
+                        "reputation_change",
+                        0
+                    )
+                )
+            ),
+
+            "territory": str(
+                raw_gang.get(
+                    "territory",
+                    ""
+                )
+            ).strip(),
+
+            "relationship": str(
+                raw_gang.get(
+                    "relationship",
+                    "陌生"
+                )
+            ).strip(),
+
+            "notes": str(
+                raw_gang.get(
+                    "notes",
+                    ""
+                )
+            ).strip()
+        }
+
+        state["gangs"].append(
+            new_gang
+        )
+
+
 def apply_current_gang_update(
-state,
-result
+    state,
+    result
 ):
 
-update = result.get(
-    "gang_update",
-    {}
-)
+    update = result.get(
+        "gang_update",
+        {}
+    )
 
-if not isinstance(
-    update,
-    dict
-):
-    return
+    if not isinstance(
+        update,
+        dict
+    ):
+        return
 
-if not update.get(
-    "changed",
-    False
-):
-    return
+    if not update.get(
+        "changed",
+        False
+    ):
+        return
 
-current = state.get(
-    "current_gang",
-    {}
-)
+    current = state.get(
+        "current_gang",
+        {}
+    )
 
-if update.get(
-    "leave",
-    False
-):
+    if update.get(
+        "leave",
+        False
+    ):
 
-    current["name"] = ""
-    current["role"] = "無"
-    current["rank"] = "無"
-    current["loyalty"] = 0
-    current["respect"] = 0
-    current["notes"] = str(
+        current["name"] = ""
+        current["role"] = "無"
+        current["rank"] = "無"
+        current["loyalty"] = 0
+        current["respect"] = 0
+        current["notes"] = str(
+            update.get(
+                "notes",
+                ""
+            )
+        ).strip()
+
+        state["current_gang"] = current
+
+        return
+
+    name = str(
+        update.get(
+            "name",
+            ""
+        )
+    ).strip()
+
+    if not name:
+        return
+
+    current["name"] = name
+
+    current["role"] = str(
+        update.get(
+            "role",
+            current.get(
+                "role",
+                "成員"
+            )
+        )
+    ).strip()
+
+    current["rank"] = str(
+        update.get(
+            "rank",
+            current.get(
+                "rank",
+                "普通成員"
+            )
+        )
+    ).strip()
+
+    loyalty_change = max(
+        -5,
+        min(
+            5,
+            safe_number(
+                update.get(
+                    "loyalty_change",
+                    0
+                )
+            )
+        )
+    )
+
+    respect_change = max(
+        -5,
+        min(
+            5,
+            safe_number(
+                update.get(
+                    "respect_change",
+                    0
+                )
+            )
+        )
+    )
+
+    current["loyalty"] = max(
+        0,
+        min(
+            100,
+            current.get(
+                "loyalty",
+                0
+            )
+            +
+            loyalty_change
+        )
+    )
+
+    current["respect"] = max(
+        0,
+        min(
+            100,
+            current.get(
+                "respect",
+                0
+            )
+            +
+            respect_change
+        )
+    )
+
+    notes = str(
         update.get(
             "notes",
             ""
         )
     ).strip()
 
+    if notes:
+        current["notes"] = notes
+
     state["current_gang"] = current
 
-    return
 
-name = str(
-    update.get(
-        "name",
-        ""
-    )
-).strip()
-
-if not name:
-    return
-
-current["name"] = name
-
-current["role"] = str(
-    update.get(
-        "role",
-        current.get(
-            "role",
-            "成員"
-        )
-    )
-).strip()
-
-current["rank"] = str(
-    update.get(
-        "rank",
-        current.get(
-            "rank",
-            "普通成員"
-        )
-    )
-).strip()
-
-loyalty_change = max(
-    -5,
-    min(
-        5,
-        safe_number(
-            update.get(
-                "loyalty_change",
-                0
-            )
-        )
-    )
-)
-
-respect_change = max(
-    -5,
-    min(
-        5,
-        safe_number(
-            update.get(
-                "respect_change",
-                0
-            )
-        )
-    )
-)
-
-current["loyalty"] = max(
-    0,
-    min(
-        100,
-        current.get(
-            "loyalty",
-            0
-        )
-        +
-        loyalty_change
-    )
-)
-
-current["respect"] = max(
-    0,
-    min(
-        100,
-        current.get(
-            "respect",
-            0
-        )
-        +
-        respect_change
-    )
-)
-
-notes = str(
-    update.get(
-        "notes",
-        ""
-    )
-).strip()
-
-if notes:
-    current["notes"] = notes
-
-state["current_gang"] = current
-
-============================================================
-
-⑩ 健康安全檢查
-
-============================================================
+# ============================================================
+# ⑪ 健康安全檢查
+# ============================================================
 
 def sanitize_health_change(result):
 
-changes = result.get(
-    "changes",
-    {}
-)
-
-if not isinstance(
-    changes,
-    dict
-):
-    return
-
-health_change = safe_number(
-    changes.get(
-        "health_change",
-        0
+    changes = result.get(
+        "changes",
+        {}
     )
-)
 
-reason = str(
-    changes.get(
-        "health_reason",
-        ""
-    )
-).strip()
+    if not isinstance(
+        changes,
+        dict
+    ):
+        return
 
-if health_change != 0 and not reason:
-
-    changes["health_change"] = 0
-    changes["health_reason"] = ""
-
-    return
-
-if health_change == 0:
-
-    changes["health_change"] = 0
-    changes["health_reason"] = ""
-
-    return
-
-changes["health_change"] = max(
-    -15,
-    min(
-        10,
-        health_change
-    )
-)
-
-============================================================
-
-⑪ 套用數值
-
-============================================================
-
-def apply_changes(state, result):
-
-sanitize_health_change(
-    result
-)
-
-p = state["player"]
-
-changes = result.get(
-    "changes",
-    {}
-)
-
-if not isinstance(
-    changes,
-    dict
-):
-    changes = {}
-
-fields = [
-    "cash",
-    "assets",
-    "company_value",
-    "legal_business",
-    "power",
-    "reputation",
-    "police_attention",
-    "health"
-]
-
-for field in fields:
-
-    key = field + "_change"
-
-    value = safe_number(
+    health_change = safe_number(
         changes.get(
-            key,
+            "health_change",
             0
         )
     )
 
-    if field in [
-        "cash",
-        "assets",
-        "company_value"
-    ]:
-
-        value = max(
-            -100000,
-            min(
-                100000,
-                value
-            )
+    reason = str(
+        changes.get(
+            "health_reason",
+            ""
         )
+    ).strip()
 
-    else:
+    if health_change != 0 and not reason:
 
-        value = max(
-            -10,
-            min(
-                10,
-                value
-            )
+        changes["health_change"] = 0
+        changes["health_reason"] = ""
+
+        return
+
+    if health_change == 0:
+
+        changes["health_change"] = 0
+        changes["health_reason"] = ""
+
+        return
+
+    changes["health_change"] = max(
+        -15,
+        min(
+            10,
+            health_change
         )
-
-    p[field] += value
-
-p["cash"] = max(
-    0,
-    p["cash"]
-)
-
-p["assets"] = max(
-    0,
-    p["assets"]
-)
-
-p["company_value"] = max(
-    0,
-    p["company_value"]
-)
-
-p["legal_business"] = max(
-    0,
-    min(
-        100,
-        p["legal_business"]
     )
-)
 
-p["power"] = max(
-    0,
-    p["power"]
-)
 
-p["reputation"] = max(
-    0,
-    p["reputation"]
-)
+# ============================================================
+# ⑫ 套用數值
+# ============================================================
 
-p["police_attention"] = max(
-    0,
-    min(
-        100,
-        p["police_attention"]
+def apply_changes(state, result):
+
+    sanitize_health_change(
+        result
     )
-)
 
-p["health"] = max(
-    0,
-    min(
-        100,
-        p["health"]
+    p = state["player"]
+
+    changes = result.get(
+        "changes",
+        {}
     )
-)
-
-# ========================================================
-# 兄弟
-# ========================================================
-
-brothers = result.get(
-    "brothers",
-    {}
-)
-
-if not isinstance(
-    brothers,
-    dict
-):
-    brothers = {}
-
-for name, data in brothers.items():
-
-    if name not in state["brothers"]:
-        continue
 
     if not isinstance(
-        data,
+        changes,
         dict
     ):
-        continue
+        changes = {}
 
-    b = state["brothers"][name]
+    fields = [
+        "cash",
+        "assets",
+        "company_value",
+        "legal_business",
+        "power",
+        "reputation",
+        "police_attention",
+        "health"
+    ]
 
-    for field in [
-        "loyalty",
-        "trust",
-        "respect"
-    ]:
+    for field in fields:
 
         key = field + "_change"
 
         value = safe_number(
-            data.get(
+            changes.get(
                 key,
                 0
             )
         )
 
-        value = max(
-            -5,
-            min(
-                5,
-                value
+        if field in [
+            "cash",
+            "assets",
+            "company_value"
+        ]:
+
+            value = max(
+                -100000,
+                min(
+                    100000,
+                    value
+                )
             )
-        )
 
-        b[field] += value
+        else:
 
-        b[field] = max(
-            0,
-            min(
-                100,
-                b[field]
+            value = max(
+                -10,
+                min(
+                    10,
+                    value
+                )
             )
-        )
 
-# ========================================================
-# 幫派
-# ========================================================
+        p[field] += value
 
-apply_current_gang_update(
-    state,
-    result
-)
-
-apply_gang_changes(
-    state,
-    result
-)
-
-# ========================================================
-# 重要 NPC
-# ========================================================
-
-apply_npc_changes(
-    state,
-    result
-)
-
-# ========================================================
-# 戀愛
-# ========================================================
-
-love_data = result.get(
-    "love",
-    {}
-)
-
-if not isinstance(
-    love_data,
-    dict
-):
-    love_data = {}
-
-if state["love_interest"]:
-
-    love = state["love_interest"]
-
-    for field in [
-        "affection",
-        "trust",
-        "respect"
-    ]:
-
-        change = safe_number(
-            love_data.get(
-                field + "_change",
-                0
-            )
-        )
-
-        change = max(
-            -5,
-            min(
-                5,
-                change
-            )
-        )
-
-        love[field] += change
-
-        love[field] = max(
-            0,
-            min(
-                100,
-                love[field]
-            )
-        )
-
-    affection = love["affection"]
-
-    if affection < 20:
-        love["relationship"] = "陌生"
-
-    elif affection < 40:
-        love["relationship"] = "認識"
-
-    elif affection < 60:
-        love["relationship"] = "朋友"
-
-    elif affection < 75:
-        love["relationship"] = "曖昧"
-
-    elif affection < 90:
-        love["relationship"] = "交往"
-
-    else:
-        love["relationship"] = "深度交往"
-
-# ========================================================
-# 建立戀愛角色
-# ========================================================
-
-if (
-    state["love_interest"] is None
-    and
-    love_data.get(
-        "created",
-        False
+    p["cash"] = max(
+        0,
+        p["cash"]
     )
-):
 
-    p = state["player"]
+    p["assets"] = max(
+        0,
+        p["assets"]
+    )
+
+    p["company_value"] = max(
+        0,
+        p["company_value"]
+    )
+
+    p["legal_business"] = max(
+        0,
+        min(
+            100,
+            p["legal_business"]
+        )
+    )
+
+    p["power"] = max(
+        0,
+        p["power"]
+    )
+
+    p["reputation"] = max(
+        0,
+        p["reputation"]
+    )
+
+    p["police_attention"] = max(
+        0,
+        min(
+            100,
+            p["police_attention"]
+        )
+    )
+
+    p["health"] = max(
+        0,
+        min(
+            100,
+            p["health"]
+        )
+    )
+
+    # ========================================================
+    # 兄弟
+    # ========================================================
+
+    brothers = result.get(
+        "brothers",
+        {}
+    )
+
+    if not isinstance(
+        brothers,
+        dict
+    ):
+        brothers = {}
+
+    for name, data in brothers.items():
+
+        if name not in state["brothers"]:
+            continue
+
+        if not isinstance(
+            data,
+            dict
+        ):
+            continue
+
+        b = state["brothers"][name]
+
+        for field in [
+            "loyalty",
+            "trust",
+            "respect"
+        ]:
+
+            key = field + "_change"
+
+            value = safe_number(
+                data.get(
+                    key,
+                    0
+                )
+            )
+
+            value = max(
+                -5,
+                min(
+                    5,
+                    value
+                )
+            )
+
+            b[field] += value
+
+            b[field] = max(
+                0,
+                min(
+                    100,
+                    b[field]
+                )
+            )
+
+    # ========================================================
+    # 幫派
+    # ========================================================
+
+    apply_current_gang_update(
+        state,
+        result
+    )
+
+    apply_gang_changes(
+        state,
+        result
+    )
+
+    # ========================================================
+    # 重要 NPC
+    # ========================================================
+
+    apply_npc_changes(
+        state,
+        result
+    )
+
+    # ========================================================
+    # 戀愛
+    # ========================================================
+
+    love_data = result.get(
+        "love",
+        {}
+    )
+
+    if not isinstance(
+        love_data,
+        dict
+    ):
+        love_data = {}
+
+    if state["love_interest"]:
+
+        love = state["love_interest"]
+
+        for field in [
+            "affection",
+            "trust",
+            "respect"
+        ]:
+
+            change = safe_number(
+                love_data.get(
+                    field + "_change",
+                    0
+                )
+            )
+
+            change = max(
+                -5,
+                min(
+                    5,
+                    change
+                )
+            )
+
+            love[field] += change
+
+            love[field] = max(
+                0,
+                min(
+                    100,
+                    love[field]
+                )
+            )
+
+        affection = love["affection"]
+
+        if affection < 20:
+            love["relationship"] = "陌生"
+
+        elif affection < 40:
+            love["relationship"] = "認識"
+
+        elif affection < 60:
+            love["relationship"] = "朋友"
+
+        elif affection < 75:
+            love["relationship"] = "曖昧"
+
+        elif affection < 90:
+            love["relationship"] = "交往"
+
+        else:
+            love["relationship"] = "深度交往"
+
+    # ========================================================
+    # 建立戀愛角色
+    # ========================================================
 
     if (
-        p["age"] > 18
-        or
-        p["month"] > 2
+        state["love_interest"] is None
+        and
+        love_data.get(
+            "created",
+            False
+        )
     ):
 
-        name = str(
-            love_data.get(
-                "name",
-                ""
-            )
-        ).strip()
-
-        if name:
-
-            state["love_interest"] = {
-
-                "name": name,
-
-                "personality":
-                    love_data.get(
-                        "personality",
-                        "個性獨立"
-                    ),
-
-                "affection": 1,
-                "trust": 1,
-                "respect": 1,
-
-                "relationship": "認識"
-            }
-
-# ========================================================
-# Flags
-# ========================================================
-
-flags_add = result.get(
-    "flags_add",
-    []
-)
-
-if isinstance(
-    flags_add,
-    list
-):
-
-    for flag in flags_add:
+        p = state["player"]
 
         if (
-            isinstance(
-                flag,
-                str
-            )
-            and
-            flag not in state["flags"]
+            p["age"] > 18
+            or
+            p["month"] > 2
         ):
 
-            state["flags"].append(
-                flag
-            )
+            name = str(
+                love_data.get(
+                    "name",
+                    ""
+                )
+            ).strip()
 
-flags_remove = result.get(
-    "flags_remove",
-    []
-)
+            if name:
 
-if isinstance(
-    flags_remove,
-    list
-):
+                state["love_interest"] = {
 
-    for flag in flags_remove:
+                    "name": name,
 
-        if flag in state["flags"]:
+                    "personality":
+                        love_data.get(
+                            "personality",
+                            "個性獨立"
+                        ),
 
-            state["flags"].remove(
-                flag
-            )
+                    "affection": 1,
+                    "trust": 1,
+                    "respect": 1,
 
-# ========================================================
-# 結局
-# ========================================================
+                    "relationship": "認識"
+                }
 
-if result.get(
-    "death",
-    False
-):
+    # ========================================================
+    # Flags
+    # ========================================================
 
-    p["alive"] = False
+    flags_add = result.get(
+        "flags_add",
+        []
+    )
 
-if result.get(
-    "arrested",
-    False
-):
+    if isinstance(
+        flags_add,
+        list
+    ):
 
-    p["arrested"] = True
+        for flag in flags_add:
 
-# 注意：
-# listed 不再結束遊戲
-# 它只代表公司曾經成功上市。
+            if (
+                isinstance(
+                    flag,
+                    str
+                )
+                and
+                flag not in state["flags"]
+            ):
 
-if result.get(
-    "listed",
-    False
-):
+                state["flags"].append(
+                    flag
+                )
 
-    p["listed"] = True
+    flags_remove = result.get(
+        "flags_remove",
+        []
+    )
 
-============================================================
+    if isinstance(
+        flags_remove,
+        list
+    ):
 
-⑫ 世界時間
+        for flag in flags_remove:
 
-============================================================
+            if flag in state["flags"]:
+
+                state["flags"].remove(
+                    flag
+                )
+
+    # ========================================================
+    # 結局
+    # ========================================================
+
+    if result.get(
+        "death",
+        False
+    ):
+
+        p["alive"] = False
+
+    if result.get(
+        "arrested",
+        False
+    ):
+
+        p["arrested"] = True
+
+    # 注意：
+    # listed 不再結束遊戲
+    # 它只代表公司曾經成功上市。
+
+    if result.get(
+        "listed",
+        False
+    ):
+
+        p["listed"] = True
+
+
+# ============================================================
+# ⑬ 世界時間
+# ============================================================
 
 def world_tick(state):
 
-p = state["player"]
+    p = state["player"]
 
-# 合法事業被動收入
-if p["legal_business"] > 0:
+    # 合法事業被動收入
+    if p["legal_business"] > 0:
 
-    income = int(
-        p["legal_business"]
-        *
-        random.randint(
-            50,
-            150
+        income = int(
+            p["legal_business"]
+            *
+            random.randint(
+                50,
+                150
+            )
         )
-    )
 
-    p["cash"] += income
+        p["cash"] += income
 
-# 公司成長
-if p["legal_business"] >= 10:
+    # 公司成長
+    if p["legal_business"] >= 10:
 
-    growth = int(
-        p["legal_business"]
-        *
-        random.randint(
-            50,
-            200
+        growth = int(
+            p["legal_business"]
+            *
+            random.randint(
+                50,
+                200
+            )
         )
-    )
 
-    p["company_value"] += growth
+        p["company_value"] += growth
 
-p["month"] += 1
+    p["month"] += 1
 
-if p["month"] > 12:
+    if p["month"] > 12:
 
-    p["month"] = 1
+        p["month"] = 1
 
-    p["age"] += 1
+        p["age"] += 1
 
-    for b in state["brothers"].values():
+        for b in state["brothers"].values():
 
-        b["age"] += 1
+            b["age"] += 1
 
-============================================================
 
-⑬ 記憶
-
-============================================================
+# ============================================================
+# ⑭ 記憶
+# ============================================================
 
 def add_memory(
-state,
-action,
-result
+    state,
+    action,
+    result
 ):
 
-memory = {
+    memory = {
 
-    "age":
-        state["player"]["age"],
+        "age":
+            state["player"]["age"],
 
-    "month":
-        state["player"]["month"],
+        "month":
+            state["player"]["month"],
 
-    "action":
-        action,
+        "action":
+            action,
 
-    "result":
-        result.get(
-            "action_result",
-            ""
-        )[-5000:]
-}
+        "result":
+            result.get(
+                "action_result",
+                ""
+            )[-5000:]
+    }
 
-state["history"].append(
-    memory
-)
-
-if len(
-    state["history"]
-) > 40:
-
-    state["history"] = (
-        state["history"][-40:]
+    state["history"].append(
+        memory
     )
 
-============================================================
+    if len(
+        state["history"]
+    ) > 40:
 
-⑭ 存檔
+        state["history"] = (
+            state["history"][-40:]
+        )
 
-============================================================
+
+# ============================================================
+# ⑮ 存檔
+# ============================================================
 
 def create_save_data(state):
 
-return {
+    return {
 
-    "game_name":
-        "地下帝國：模擬人生",
+        "game_name":
+            "地下帝國：模擬人生",
 
-    "save_version":
-        6,
+        "save_version":
+            6,
 
-    "saved_at":
-        time.strftime(
-            "%Y-%m-%d %H:%M:%S"
-        ),
+        "saved_at":
+            time.strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
 
-    "game":
-        state
-}
+        "game":
+            state
+    }
+
 
 def save_game_file(state):
 
-return json.dumps(
-    create_save_data(state),
-    ensure_ascii=False,
-    indent=2
-)
+    return json.dumps(
+        create_save_data(state),
+        ensure_ascii=False,
+        indent=2
+    )
+
 
 def load_game_file(uploaded_file):
 
-try:
+    try:
 
-    data = json.load(
-        uploaded_file
-    )
-
-    if "game" not in data:
-
-        raise ValueError(
-            "這不是有效的地下帝國存檔。"
+        data = json.load(
+            uploaded_file
         )
 
-    game = data["game"]
+        if "game" not in data:
 
-    if "player" not in game:
+            raise ValueError(
+                "這不是有效的地下帝國存檔。"
+            )
 
-        raise ValueError(
-            "存檔缺少玩家資料。"
+        game = data["game"]
+
+        if "player" not in game:
+
+            raise ValueError(
+                "存檔缺少玩家資料。"
+            )
+
+        if "brothers" not in game:
+
+            raise ValueError(
+                "存檔缺少兄弟資料。"
+            )
+
+        # ========================================================
+        # 舊存檔相容
+        # ========================================================
+
+        defaults = {
+
+            "love_interest": None,
+
+            "important_npcs": [],
+
+            "gangs": [],
+
+            "current_gang": {
+                "name": "",
+                "role": "無",
+                "rank": "無",
+                "loyalty": 0,
+                "respect": 0,
+                "notes": ""
+            },
+
+            "flags": [],
+
+            "history": [],
+
+            "current_story": None,
+
+            "pending_result": None,
+
+            "pending_next_story": None,
+
+            "pending_next_choices": [],
+
+            "current_choices": [],
+
+            "phase": "playing",
+
+            "game_started": True
+        }
+
+        for key, value in defaults.items():
+
+            if key not in game:
+
+                game[key] = value
+
+        # ========================================================
+        # 玩家資料相容
+        # ========================================================
+
+        player_defaults = {
+
+            "name": "你",
+            "age": 18,
+            "month": 1,
+
+            "cash": 0,
+            "assets": 0,
+            "company_value": 0,
+
+            "legal_business": 0,
+            "power": 0,
+            "reputation": 0,
+
+            "police_attention": 0,
+            "health": 100,
+
+            "alive": True,
+            "arrested": False,
+            "listed": False
+        }
+
+        for key, value in player_defaults.items():
+
+            if key not in game["player"]:
+
+                game["player"][key] = value
+
+        # ========================================================
+        # 幫派資料清理
+        # ========================================================
+
+        current_gang = game.get(
+            "current_gang"
         )
 
-    if "brothers" not in game:
+        if not isinstance(
+            current_gang,
+            dict
+        ):
 
-        raise ValueError(
-            "存檔缺少兄弟資料。"
-        )
+            current_gang = {}
 
-    # ========================================================
-    # 舊存檔相容
-    # ========================================================
+        game["current_gang"] = {
 
-    defaults = {
+            "name": str(
+                current_gang.get(
+                    "name",
+                    ""
+                )
+            ).strip(),
 
-        "love_interest": None,
+            "role": str(
+                current_gang.get(
+                    "role",
+                    "無"
+                )
+            ).strip(),
 
-        "important_npcs": [],
+            "rank": str(
+                current_gang.get(
+                    "rank",
+                    "無"
+                )
+            ).strip(),
 
-        "gangs": [],
-
-        "current_gang": {
-            "name": "",
-            "role": "無",
-            "rank": "無",
-            "loyalty": 0,
-            "respect": 0,
-            "notes": ""
-        },
-
-        "flags": [],
-
-        "history": [],
-
-        "current_story": None,
-
-        "pending_result": None,
-
-        "pending_next_story": None,
-
-        "pending_next_choices": [],
-
-        "current_choices": [],
-
-        "phase": "playing",
-
-        "game_started": True
-    }
-
-    for key, value in defaults.items():
-
-        if key not in game:
-
-            game[key] = value
-
-    # ========================================================
-    # 玩家資料相容
-    # ========================================================
-
-    player_defaults = {
-
-        "name": "你",
-        "age": 18,
-        "month": 1,
-
-        "cash": 0,
-        "assets": 0,
-        "company_value": 0,
-
-        "legal_business": 0,
-        "power": 0,
-        "reputation": 0,
-
-        "police_attention": 0,
-        "health": 100,
-
-        "alive": True,
-        "arrested": False,
-        "listed": False
-    }
-
-    for key, value in player_defaults.items():
-
-        if key not in game["player"]:
-
-            game["player"][key] = value
-
-    # ========================================================
-    # 幫派資料清理
-    # ========================================================
-
-    current_gang = game.get(
-        "current_gang"
-    )
-
-    if not isinstance(
-        current_gang,
-        dict
-    ):
-
-        current_gang = {}
-
-    game["current_gang"] = {
-
-        "name": str(
-            current_gang.get(
-                "name",
-                ""
-            )
-        ).strip(),
-
-        "role": str(
-            current_gang.get(
-                "role",
-                "無"
-            )
-        ).strip(),
-
-        "rank": str(
-            current_gang.get(
-                "rank",
-                "無"
-            )
-        ).strip(),
-
-        "loyalty": max(
-            0,
-            min(
-                100,
-                safe_number(
-                    current_gang.get(
-                        "loyalty",
-                        0
+            "loyalty": max(
+                0,
+                min(
+                    100,
+                    safe_number(
+                        current_gang.get(
+                            "loyalty",
+                            0
+                        )
                     )
                 )
-            )
-        ),
+            ),
 
-        "respect": max(
-            0,
-            min(
-                100,
-                safe_number(
-                    current_gang.get(
-                        "respect",
-                        0
+            "respect": max(
+                0,
+                min(
+                    100,
+                    safe_number(
+                        current_gang.get(
+                            "respect",
+                            0
+                        )
                     )
                 )
+            ),
+
+            "notes": str(
+                current_gang.get(
+                    "notes",
+                    ""
+                )
+            ).strip()
+        }
+
+        # ========================================================
+        # 世界幫派清理
+        # ========================================================
+
+        if not isinstance(
+            game.get(
+                "gangs"
+            ),
+            list
+        ):
+
+            game["gangs"] = []
+
+        clean_gangs = []
+
+        for gang in game["gangs"]:
+
+            normalized = normalize_gang(
+                gang
             )
-        ),
 
-        "notes": str(
-            current_gang.get(
-                "notes",
-                ""
+            if normalized:
+
+                clean_gangs.append(
+                    normalized
+                )
+
+        game["gangs"] = clean_gangs
+
+        # ========================================================
+        # 重要人物清理
+        # ========================================================
+
+        if not isinstance(
+            game.get(
+                "important_npcs"
+            ),
+            list
+        ):
+
+            game["important_npcs"] = []
+
+        clean_npcs = []
+
+        for npc in game["important_npcs"]:
+
+            normalized = normalize_npc(
+                npc
             )
-        ).strip()
-    }
 
-    # ========================================================
-    # 世界幫派清理
-    # ========================================================
+            if normalized:
 
-    if not isinstance(
-        game.get(
-            "gangs"
-        ),
-        list
-    ):
+                clean_npcs.append(
+                    normalized
+                )
 
-        game["gangs"] = []
+        game["important_npcs"] = clean_npcs
 
-    clean_gangs = []
+        # ========================================================
+        # current_choices
+        # ========================================================
 
-    for gang in game["gangs"]:
+        if not isinstance(
+            game.get(
+                "current_choices"
+            ),
+            list
+        ):
 
-        normalized = normalize_gang(
-            gang
+            game["current_choices"] = []
+
+        if not isinstance(
+            game.get(
+                "pending_next_choices"
+            ),
+            list
+        ):
+
+            game["pending_next_choices"] = []
+
+        return game
+
+    except json.JSONDecodeError:
+
+        raise ValueError(
+            "存檔檔案不是有效的 JSON。"
         )
 
-        if normalized:
+    except Exception as e:
 
-            clean_gangs.append(
-                normalized
-            )
-
-    game["gangs"] = clean_gangs
-
-    # ========================================================
-    # 重要人物清理
-    # ========================================================
-
-    if not isinstance(
-        game.get(
-            "important_npcs"
-        ),
-        list
-    ):
-
-        game["important_npcs"] = []
-
-    clean_npcs = []
-
-    for npc in game["important_npcs"]:
-
-        normalized = normalize_npc(
-            npc
+        raise ValueError(
+            f"讀取存檔失敗：{e}"
         )
 
-        if normalized:
 
-            clean_npcs.append(
-                normalized
-            )
-
-    game["important_npcs"] = clean_npcs
-
-    # ========================================================
-    # current_choices
-    # ========================================================
-
-    if not isinstance(
-        game.get(
-            "current_choices"
-        ),
-        list
-    ):
-
-        game["current_choices"] = []
-
-    if not isinstance(
-        game.get(
-            "pending_next_choices"
-        ),
-        list
-    ):
-
-        game["pending_next_choices"] = []
-
-    return game
-
-except json.JSONDecodeError:
-
-    raise ValueError(
-        "存檔檔案不是有效的 JSON。"
-    )
-
-except Exception as e:
-
-    raise ValueError(
-        f"讀取存檔失敗：{e}"
-    )
-
-============================================================
-
-⑮ CSS
-
-============================================================
+# ============================================================
+# ⑯ CSS
+# ============================================================
 
 st.markdown(
-"""
-<style>
+    """
+    <style>
 
-.main-title {
-    text-align: center;
-    font-size: 42px;
-    font-weight: bold;
-    margin-bottom: 8px;
-}
+    .main-title {
+        text-align: center;
+        font-size: 42px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
 
-.subtitle {
-    text-align: center;
-    color: #888;
-    margin-bottom: 25px;
-}
+    .subtitle {
+        text-align: center;
+        color: #888;
+        margin-bottom: 25px;
+    }
 
-.story-box {
-    padding: 24px;
-    border-radius: 12px;
-    border: 1px solid #444;
-    line-height: 2;
-    font-size: 17px;
-    white-space: pre-wrap;
-}
+    .story-box {
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid #444;
+        line-height: 2;
+        font-size: 17px;
+        white-space: pre-wrap;
+    }
 
-.result-box {
-    padding: 24px;
-    border-radius: 12px;
-    border: 1px solid #555;
-    line-height: 2;
-    font-size: 17px;
-    white-space: pre-wrap;
-}
+    .result-box {
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid #555;
+        line-height: 2;
+        font-size: 17px;
+        white-space: pre-wrap;
+    }
 
-.npc-box {
-    padding: 16px;
-    border-radius: 10px;
-    border: 1px solid #555;
-    margin-bottom: 10px;
-}
+    .npc-box {
+        padding: 16px;
+        border-radius: 10px;
+        border: 1px solid #555;
+        margin-bottom: 10px;
+    }
 
-.gang-box {
-    padding: 18px;
-    border-radius: 12px;
-    border: 1px solid #555;
-    margin-bottom: 12px;
-}
+    .gang-box {
+        padding: 18px;
+        border-radius: 12px;
+        border: 1px solid #555;
+        margin-bottom: 12px;
+    }
 
-</style>
-""",
-unsafe_allow_html=True
-
+    </style>
+    """,
+    unsafe_allow_html=True
 )
 
-============================================================
 
-⑯ Session State
-
-============================================================
+# ============================================================
+# ⑰ Session State
+# ============================================================
 
 if "game" not in st.session_state:
 
-st.session_state.game = new_game()
+    st.session_state.game = new_game()
+
 
 if "selected_action" not in st.session_state:
 
-st.session_state.selected_action = ""
+    st.session_state.selected_action = ""
+
 
 state = st.session_state.game
 
 p = state["player"]
 
-============================================================
 
-⑰ 標題
-
-============================================================
+# ============================================================
+# ⑱ 標題
+# ============================================================
 
 st.markdown(
-'<div class="main-title">👑 地下帝國：模擬人生</div>',
-unsafe_allow_html=True
+    '<div class="main-title">👑 地下帝國：模擬人生</div>',
+    unsafe_allow_html=True
 )
 
 st.markdown(
-'<div class="subtitle">AI 驅動的人生與地下勢力模擬 RPG</div>',
-unsafe_allow_html=True
+    '<div class="subtitle">AI 驅動的人生與地下勢力模擬 RPG</div>',
+    unsafe_allow_html=True
 )
 
-============================================================
 
-⑱ 存檔 / 讀檔
-
-============================================================
+# ============================================================
+# ⑲ 存檔 / 讀檔
+# ============================================================
 
 with st.expander("💾 存檔 / 讀檔"):
 
-st.caption(
-    "建議每玩幾個月下載一次存檔。"
-)
-
-save_data = save_game_file(
-    state
-)
-
-col_save, col_load = st.columns(2)
-
-with col_save:
-
-    st.download_button(
-
-        label="💾 下載目前存檔",
-
-        data=save_data,
-
-        file_name=(
-            f"地下帝國_"
-            f"{p['age']}歲_"
-            f"第{p['month']}個月.json"
-        ),
-
-        mime="application/json",
-
-        use_container_width=True
+    st.caption(
+        "建議每玩幾個月下載一次存檔。"
     )
 
-with col_load:
-
-    uploaded_file = st.file_uploader(
-        "📂 選擇存檔",
-        type=["json"],
-        key="save_uploader"
+    save_data = save_game_file(
+        state
     )
 
-    if uploaded_file is not None:
+    col_save, col_load = st.columns(2)
 
-        if st.button(
-            "▶️ 載入這個存檔",
+    with col_save:
+
+        st.download_button(
+
+            label="💾 下載目前存檔",
+
+            data=save_data,
+
+            file_name=(
+                f"地下帝國_"
+                f"{p['age']}歲_"
+                f"第{p['month']}個月.json"
+            ),
+
+            mime="application/json",
+
             use_container_width=True
-        ):
+        )
 
-            try:
+    with col_load:
 
-                loaded_game = load_game_file(
-                    uploaded_file
-                )
+        uploaded_file = st.file_uploader(
+            "📂 選擇存檔",
+            type=["json"],
+            key="save_uploader"
+        )
 
-                st.session_state.game = (
-                    loaded_game
-                )
+        if uploaded_file is not None:
 
-                st.session_state.selected_action = ""
+            if st.button(
+                "▶️ 載入這個存檔",
+                use_container_width=True
+            ):
 
-                st.success(
-                    "存檔讀取成功！"
-                )
+                try:
 
-                time.sleep(0.5)
+                    loaded_game = load_game_file(
+                        uploaded_file
+                    )
 
-                st.rerun()
+                    st.session_state.game = (
+                        loaded_game
+                    )
 
-            except Exception as e:
+                    st.session_state.selected_action = ""
 
-                st.error(
-                    str(e)
-                )
+                    st.success(
+                        "存檔讀取成功！"
+                    )
 
-============================================================
+                    time.sleep(0.5)
 
-⑲ 開始畫面
+                    st.rerun()
 
-============================================================
+                except Exception as e:
+
+                    st.error(
+                        str(e)
+                    )
+
+
+# ============================================================
+# ⑳ 開始畫面
+# ============================================================
 
 if not state["game_started"]:
 
-st.markdown(
-    """
-    ## 你的故事開始了
+    st.markdown(
+        """
+        ## 你的故事開始了
 
-    18歲。
+        18歲。
 
-    你出生於台灣普通家庭。
+        你出生於台灣普通家庭。
 
-    沒有資產。
+        沒有資產。
 
-    沒有背景。
+        沒有背景。
 
-    沒有人脈。
+        沒有人脈。
 
-    身上只有：
+        身上只有：
 
-    ### 💰 $0
+        ### 💰 $0
 
-    但你有三個從小一起長大的兄弟：
+        但你有三個從小一起長大的兄弟：
 
-    **阿龍**
-    沉穩、重義氣。
+        **阿龍**
+        沉穩、重義氣。
 
-    **阿虎**
-    衝動、敢冒險。
+        **阿虎**
+        衝動、敢冒險。
 
-    **阿豪**
-    冷靜、擅長分析。
+        **阿豪**
+        冷靜、擅長分析。
 
-    這不是一個固定劇本。
+        這不是一個固定劇本。
 
-    你可以走普通人的道路，
-    也可以一步一步踏入地下世界。
+        你可以走普通人的道路，
+        也可以一步一步踏入地下世界。
 
-    你也可能在漫長的人生中：
+        你也可能在漫長的人生中：
 
-    認識地方人物、
-    加入幫派、
-    成為幫派高層、
-    建立自己的勢力、
-    經營公司、
-    認識重要商人、
-    認識警方人物、
-    認識官員與政治人物，
-    建立複雜的人際關係。
+        認識地方人物、
+        加入幫派、
+        成為幫派高層、
+        建立自己的勢力、
+        經營公司、
+        認識重要商人、
+        認識警方人物、
+        認識官員與政治人物，
+        建立複雜的人際關係。
 
-    上市不是終點。
+        上市不是終點。
 
-    這場人生會一直持續，
-    直到你死亡。
+        這場人生會一直持續，
+        直到你死亡。
 
-    你的每個選擇都會影響：
+        你的每個選擇都會影響：
 
-    人脈、兄弟、勢力、聲望、幫派、
-    政治人脈與未來。
-    """
-)
+        人脈、兄弟、勢力、聲望、幫派、
+        政治人脈與未來。
+        """
+    )
 
-if st.button(
-    "🎮 開始人生",
-    type="primary",
-    use_container_width=True
-):
+    if st.button(
+        "🎮 開始人生",
+        type="primary",
+        use_container_width=True
+    ):
 
-    state["game_started"] = True
+        state["game_started"] = True
 
-    st.rerun()
+        st.rerun()
 
-st.stop()
+    st.stop()
 
-============================================================
 
-⑳ 死亡
-
-============================================================
+# ============================================================
+# ㉑ 死亡
+# ============================================================
 
 if not p["alive"]:
 
-st.error(
-    "☠️ 你的人生結束了。"
-)
+    st.error(
+        "☠️ 你的人生結束了。"
+    )
 
-st.write(
-    f"你享年 {p['age']} 歲。"
-)
+    st.write(
+        f"你享年 {p['age']} 歲。"
+    )
 
-if st.button(
-    "重新開始",
-    use_container_width=True
-):
+    if st.button(
+        "重新開始",
+        use_container_width=True
+    ):
 
-    st.session_state.game = new_game()
+        st.session_state.game = new_game()
 
-    st.session_state.selected_action = ""
+        st.session_state.selected_action = ""
 
-    st.rerun()
+        st.rerun()
 
-st.stop()
+    st.stop()
 
-============================================================
 
-㉑ 狀態
-
-============================================================
+# ============================================================
+# ㉒ 狀態
+# ============================================================
 
 st.subheader(
-f"📅 {p['age']}歲・第{p['month']}個月"
+    f"📅 {p['age']}歲・第{p['month']}個月"
 )
 
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
 
-st.metric(
-    "💰 現金",
-    f"${int(p['cash']):,}"
-)
+    st.metric(
+        "💰 現金",
+        f"${int(p['cash']):,}"
+    )
 
 with col2:
 
-st.metric(
-    "🏠 資產",
-    f"${int(p['assets']):,}"
-)
+    st.metric(
+        "🏠 資產",
+        f"${int(p['assets']):,}"
+    )
 
 with col3:
 
-st.metric(
-    "🏢 公司估值",
-    f"${int(p['company_value']):,}"
-)
+    st.metric(
+        "🏢 公司估值",
+        f"${int(p['company_value']):,}"
+    )
 
 with col4:
 
-st.metric(
-    "❤️ 健康",
-    f"{int(p['health'])}/100"
-)
+    st.metric(
+        "❤️ 健康",
+        f"{int(p['health'])}/100"
+    )
+
 
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
 
-st.metric(
-    "🏦 合法事業",
-    f"{int(p['legal_business'])}/100"
-)
+    st.metric(
+        "🏦 合法事業",
+        f"{int(p['legal_business'])}/100"
+    )
 
 with col2:
 
-st.metric(
-    "👑 地下勢力",
-    int(p["power"])
-)
+    st.metric(
+        "👑 地下勢力",
+        int(p["power"])
+    )
 
 with col3:
 
-st.metric(
-    "⭐ 聲望",
-    int(p["reputation"])
-)
+    st.metric(
+        "⭐ 聲望",
+        int(p["reputation"])
+    )
 
 with col4:
 
-st.metric(
-    "👮 警方注意度",
-    f"{int(p['police_attention'])}/100"
-)
+    st.metric(
+        "👮 警方注意度",
+        f"{int(p['police_attention'])}/100"
+    )
 
-============================================================
 
-㉒ 上市狀態
-
-============================================================
+# ============================================================
+# ㉓ 上市狀態
+# ============================================================
 
 if p.get("listed", False):
 
-st.success(
-    "🏢 公司曾經成功上市"
-)
+    st.success(
+        "🏢 公司曾經成功上市"
+    )
 
-st.caption(
-    "上市不是遊戲終點，人生仍會繼續。"
-)
+    st.caption(
+        "上市不是遊戲終點，人生仍會繼續。"
+    )
 
-============================================================
 
-㉓ 目前幫派
-
-============================================================
+# ============================================================
+# ㉔ 目前幫派
+# ============================================================
 
 current_gang = state.get(
-"current_gang",
-{}
+    "current_gang",
+    {}
 )
 
 with st.expander(
-"👑 目前所屬幫派"
+    "👑 目前所屬幫派"
 ):
 
-gang_name = current_gang.get(
-    "name",
-    ""
-)
-
-if not gang_name:
-
-    st.write(
-        "目前沒有加入任何幫派。"
+    gang_name = current_gang.get(
+        "name",
+        ""
     )
 
-    st.caption(
-        "你可以在遊戲中透過人脈與事件逐步接觸地下勢力。"
-    )
+    if not gang_name:
 
-else:
-
-    st.markdown(
-        f"## {gang_name}"
-    )
-
-    st.write(
-        f"**身分：** "
-        f"{current_gang.get('role', '無')}"
-    )
-
-    st.write(
-        f"**階級：** "
-        f"{current_gang.get('rank', '無')}"
-    )
-
-    col_a, col_b = st.columns(2)
-
-    with col_a:
-
-        st.metric(
-            "幫派忠誠",
-            f"{int(current_gang.get('loyalty', 0))}/100"
+        st.write(
+            "目前沒有加入任何幫派。"
         )
-
-    with col_b:
-
-        st.metric(
-            "幫派尊重",
-            f"{int(current_gang.get('respect', 0))}/100"
-        )
-
-    if current_gang.get(
-        "notes"
-    ):
 
         st.caption(
-            f"記憶：{current_gang['notes']}"
+            "你可以在遊戲中透過人脈與事件逐步接觸地下勢力。"
         )
 
-============================================================
-
-㉔ 世界幫派
-
-============================================================
-
-gangs = state.get(
-"gangs",
-[]
-)
-
-with st.expander(
-f"🏴 世界勢力（{len(gangs)}）"
-):
-
-if not gangs:
-
-    st.caption(
-        "目前還沒有被正式記錄的重要幫派。"
-    )
-
-else:
-
-    for gang in gangs:
+    else:
 
         st.markdown(
-            f"### {gang['name']}"
+            f"## {gang_name}"
         )
 
         st.write(
-            f"**類型：** {gang['type']}"
-        )
-
-        if gang.get("leader"):
-
-            st.write(
-                f"**領導者：** {gang['leader']}"
-            )
-
-        st.write(
-            f"**勢力：** {gang['power']}"
+            f"**身分：** "
+            f"{current_gang.get('role', '無')}"
         )
 
         st.write(
-            f"**聲望：** {gang['reputation']}"
+            f"**階級：** "
+            f"{current_gang.get('rank', '無')}"
         )
 
-        if gang.get("territory"):
-
-            st.write(
-                f"**活動範圍：** {gang['territory']}"
-            )
-
-        st.write(
-            f"**與你的關係：** "
-            f"{gang['relationship']}"
-        )
-
-        if gang.get("notes"):
-
-            st.caption(
-                f"記憶：{gang['notes']}"
-            )
-
-        st.divider()
-
-============================================================
-
-㉕ 三兄弟
-
-============================================================
-
-with st.expander("👊 三兄弟"):
-
-for name, b in state["brothers"].items():
-
-    st.write(
-        f"### {name}"
-    )
-
-    st.write(
-        f"忠誠：{b['loyalty']}　"
-        f"信任：{b['trust']}　"
-        f"尊重：{b['respect']}　"
-        f"能力：{b['ability']}"
-    )
-
-    st.caption(
-        b["personality"]
-    )
-
-============================================================
-
-㉖ 重要人物
-
-============================================================
-
-important_npcs = state.get(
-"important_npcs",
-[]
-)
-
-with st.expander(
-f"👥 我認識的人（{len(important_npcs)}）"
-):
-
-if not important_npcs:
-
-    st.caption(
-        "目前還沒有值得長期記錄的重要人物。"
-    )
-
-    st.caption(
-        "普通路人、小混混與一次性角色不會被保存。"
-    )
-
-else:
-
-    for npc in important_npcs:
-
-        st.markdown(
-            f"### {npc['name']}"
-        )
-
-        st.write(
-            f"**身分：** {npc['role']}"
-        )
-
-        st.write(
-            f"**關係：** {npc['relationship']}"
-        )
-
-        st.write(
-            f"**狀態：** {npc['status']}"
-        )
-
-        col_a, col_b, col_c = st.columns(3)
+        col_a, col_b = st.columns(2)
 
         with col_a:
 
             st.metric(
-                "好感",
-                f"{int(npc['affection'])}/100"
+                "幫派忠誠",
+                f"{int(current_gang.get('loyalty', 0))}/100"
             )
 
         with col_b:
 
             st.metric(
-                "信任",
-                f"{int(npc['trust'])}/100"
+                "幫派尊重",
+                f"{int(current_gang.get('respect', 0))}/100"
             )
 
-        with col_c:
-
-            st.metric(
-                "尊重",
-                f"{int(npc['respect'])}/100"
-            )
-
-        st.caption(
-            f"性格：{npc['personality']}"
-        )
-
-        if npc.get("notes"):
+        if current_gang.get(
+            "notes"
+        ):
 
             st.caption(
-                f"記憶：{npc['notes']}"
+                f"記憶：{current_gang['notes']}"
             )
 
-        st.divider()
 
-============================================================
+# ============================================================
+# ㉕ 世界幫派
+# ============================================================
 
-㉗ 戀愛
+gangs = state.get(
+    "gangs",
+    []
+)
 
-============================================================
+with st.expander(
+    f"🏴 世界勢力（{len(gangs)}）"
+):
+
+    if not gangs:
+
+        st.caption(
+            "目前還沒有被正式記錄的重要幫派。"
+        )
+
+    else:
+
+        for gang in gangs:
+
+            st.markdown(
+                f"### {gang['name']}"
+            )
+
+            st.write(
+                f"**類型：** {gang['type']}"
+            )
+
+            if gang.get("leader"):
+
+                st.write(
+                    f"**領導者：** {gang['leader']}"
+                )
+
+            st.write(
+                f"**勢力：** {gang['power']}"
+            )
+
+            st.write(
+                f"**聲望：** {gang['reputation']}"
+            )
+
+            if gang.get("territory"):
+
+                st.write(
+                    f"**活動範圍：** {gang['territory']}"
+                )
+
+            st.write(
+                f"**與你的關係：** "
+                f"{gang['relationship']}"
+            )
+
+            if gang.get("notes"):
+
+                st.caption(
+                    f"記憶：{gang['notes']}"
+                )
+
+            st.divider()
+
+
+# ============================================================
+# ㉖ 三兄弟
+# ============================================================
+
+with st.expander("👊 三兄弟"):
+
+    for name, b in state["brothers"].items():
+
+        st.write(
+            f"### {name}"
+        )
+
+        st.write(
+            f"忠誠：{b['loyalty']}　"
+            f"信任：{b['trust']}　"
+            f"尊重：{b['respect']}　"
+            f"能力：{b['ability']}"
+        )
+
+        st.caption(
+            b["personality"]
+        )
+
+
+# ============================================================
+# ㉗ 重要人物
+# ============================================================
+
+important_npcs = state.get(
+    "important_npcs",
+    []
+)
+
+with st.expander(
+    f"👥 我認識的人（{len(important_npcs)}）"
+):
+
+    if not important_npcs:
+
+        st.caption(
+            "目前還沒有值得長期記錄的重要人物。"
+        )
+
+        st.caption(
+            "普通路人、小混混與一次性角色不會被保存。"
+        )
+
+    else:
+
+        for npc in important_npcs:
+
+            st.markdown(
+                f"### {npc['name']}"
+            )
+
+            st.write(
+                f"**身分：** {npc['role']}"
+            )
+
+            st.write(
+                f"**關係：** {npc['relationship']}"
+            )
+
+            st.write(
+                f"**狀態：** {npc['status']}"
+            )
+
+            col_a, col_b, col_c = st.columns(3)
+
+            with col_a:
+
+                st.metric(
+                    "好感",
+                    f"{int(npc['affection'])}/100"
+                )
+
+            with col_b:
+
+                st.metric(
+                    "信任",
+                    f"{int(npc['trust'])}/100"
+                )
+
+            with col_c:
+
+                st.metric(
+                    "尊重",
+                    f"{int(npc['respect'])}/100"
+                )
+
+            st.caption(
+                f"性格：{npc['personality']}"
+            )
+
+            if npc.get("notes"):
+
+                st.caption(
+                    f"記憶：{npc['notes']}"
+                )
+
+            st.divider()
+
+
+# ============================================================
+# ㉘ 戀愛
+# ============================================================
 
 if state["love_interest"]:
 
-love = state["love_interest"]
+    love = state["love_interest"]
 
-with st.expander(
-    f"❤️ {love['name']}"
-):
+    with st.expander(
+        f"❤️ {love['name']}"
+    ):
 
-    st.write(
-        f"關係：{love['relationship']}"
-    )
+        st.write(
+            f"關係：{love['relationship']}"
+        )
 
-    st.write(
-        f"好感：{love['affection']}/100"
-    )
+        st.write(
+            f"好感：{love['affection']}/100"
+        )
 
-    st.write(
-        f"信任：{love['trust']}/100"
-    )
+        st.write(
+            f"信任：{love['trust']}/100"
+        )
 
-    st.write(
-        f"尊重：{love['respect']}/100"
-    )
+        st.write(
+            f"尊重：{love['respect']}/100"
+        )
 
-    st.write(
-        f"性格：{love['personality']}"
-    )
+        st.write(
+            f"性格：{love['personality']}"
+        )
 
 else:
 
-with st.expander("❤️ 感情"):
+    with st.expander("❤️ 感情"):
 
-    st.write(
-        "目前沒有戀愛對象。"
-    )
+        st.write(
+            "目前沒有戀愛對象。"
+        )
 
-    st.caption(
-        "感情會隨人生自然發展。"
-    )
+        st.caption(
+            "感情會隨人生自然發展。"
+        )
 
-============================================================
 
-㉘ 第一個月開場
-
-============================================================
+# ============================================================
+# ㉙ 第一個月開場
+# ============================================================
 
 if (
-state["current_story"] is None
-and
-state["phase"] == "playing"
+    state["current_story"] is None
+    and
+    state["phase"] == "playing"
 ):
 
-with st.spinner(
-    "🤖 AI 正在建立你的世界..."
-):
+    with st.spinner(
+        "🤖 AI 正在建立你的世界..."
+    ):
 
-    try:
+        try:
 
-        prompt = build_turn_prompt(
+            prompt = build_turn_prompt(
+                state
+            )
+
+            result = call_ai(
+                prompt
+            )
+
+            state["current_story"] = result.get(
+                "story",
+                "你的故事即將開始。"
+            )
+
+            state["current_choices"] = (
+                result.get(
+                    "choices",
+                    []
+                )
+            )
+
+            if not isinstance(
+                state["current_choices"],
+                list
+            ):
+
+                state["current_choices"] = []
+
+            state["current_choices"] = (
+                state["current_choices"][:3]
+            )
+
+            apply_gang_changes(
+                state,
+                result
+            )
+
+            apply_npc_changes(
+                state,
+                result
+            )
+
+            state["phase"] = "playing"
+
+        except Exception as e:
+
+            st.error(
+                str(e)
+            )
+
+            st.stop()
+
+
+# ============================================================
+# ㉚ 本月劇情 / 行動
+# ============================================================
+
+if state["phase"] == "playing":
+
+    st.subheader(
+        f"📖 {p['age']}歲・第{p['month']}個月"
+    )
+
+    story_text = html.escape(
+        str(
+            state["current_story"]
+            or
+            "你的故事即將開始。"
+        )
+    )
+
+    st.markdown(
+        f"""
+        <div class="story-box">
+        {story_text}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    choices = state.get(
+        "current_choices",
+        []
+    )
+
+    if choices:
+
+        st.write(
+            "### 🎮 建議行動"
+        )
+
+        choice_cols = st.columns(3)
+
+        for i, choice in enumerate(
+            choices[:3]
+        ):
+
+            with choice_cols[i]:
+
+                if st.button(
+                    f"{i + 1}. {choice}",
+                    key=(
+                        f"choice_"
+                        f"{i}_"
+                        f"{p['age']}_"
+                        f"{p['month']}"
+                    ),
+                    use_container_width=True
+                ):
+
+                    st.session_state.selected_action = (
+                        str(choice)
+                    )
+
+                    st.rerun()
+
+    st.write(
+        "### ✍️ 自由行動"
+    )
+
+    selected_action = st.session_state.get(
+        "selected_action",
+        ""
+    )
+
+    with st.form(
+        "action_form",
+        clear_on_submit=True
+    ):
+
+        action = st.text_area(
+
+            "你想做什麼？",
+
+            value=selected_action,
+
+            placeholder=(
+                "可以直接輸入你的行動，例如：\n"
+                "我決定先跟阿豪去了解附近的地方勢力。"
+            ),
+
+            height=130
+        )
+
+        submitted = st.form_submit_button(
+            "⚡ 執行行動",
+            type="primary",
+            use_container_width=True
+        )
+
+    if submitted:
+
+        action = action.strip()
+
+        if not action:
+
+            st.warning(
+                "請先輸入你的行動。"
+            )
+
+        else:
+
+            with st.spinner(
+                "🤖 AI 正在演出你的行動..."
+            ):
+
+                try:
+
+                    prompt = build_turn_prompt(
+                        state,
+                        action
+                    )
+
+                    result = call_ai(
+                        prompt
+                    )
+
+                except Exception as e:
+
+                    st.error(
+                        str(e)
+                    )
+
+                    st.stop()
+
+            apply_changes(
+                state,
+                result
+            )
+
+            add_memory(
+                state,
+                action,
+                result
+            )
+
+            next_story = result.get(
+                "next_month_story",
+                ""
+            )
+
+            if (
+                not isinstance(
+                    next_story,
+                    str
+                )
+                or
+                not next_story.strip()
+            ):
+
+                next_story = (
+                    "新的一個月開始了。"
+                    "上個月留下的事情並沒有真正結束，"
+                    "而新的變化正在慢慢浮現。"
+                )
+
+            state["pending_next_story"] = (
+                next_story.strip()
+            )
+
+            next_choices = result.get(
+                "choices",
+                []
+            )
+
+            if not isinstance(
+                next_choices,
+                list
+            ):
+
+                next_choices = []
+
+            state["pending_next_choices"] = [
+                str(x)
+                for x in next_choices[:3]
+                if str(x).strip()
+            ]
+
+            action_result = result.get(
+                "action_result",
+                "這個行動產生了一些變化。"
+            )
+
+            if not isinstance(
+                action_result,
+                str
+            ):
+
+                action_result = str(
+                    action_result
+                )
+
+            state["pending_result"] = (
+                action_result
+            )
+
+            state["current_story"] = (
+                state["pending_result"]
+            )
+
+            state["current_choices"] = []
+
+            state["phase"] = "action_result"
+
+            st.session_state.selected_action = ""
+
+            st.rerun()
+
+
+# ============================================================
+# ㉛ 行動結果
+# ============================================================
+
+if state["phase"] == "action_result":
+
+    st.subheader(
+        "🎬 本月行動結果"
+    )
+
+    result_text = html.escape(
+        str(
+            state["pending_result"]
+            or
+            "這個行動產生了一些變化。"
+        )
+    )
+
+    st.markdown(
+        f"""
+        <div class="result-box">
+        {result_text}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.divider()
+
+    st.info(
+        "本月行動已結束。"
+        "按下「繼續」後才會進入下一個月。"
+    )
+
+    if st.button(
+        "▶️ 繼續・進入下一個月",
+        type="primary",
+        use_container_width=True
+    ):
+
+        world_tick(
             state
         )
 
-        result = call_ai(
-            prompt
-        )
-
-        state["current_story"] = result.get(
-            "story",
-            "你的故事即將開始。"
+        state["current_story"] = (
+            state["pending_next_story"]
+            or
+            "新的一個月開始了。"
         )
 
         state["current_choices"] = (
-            result.get(
-                "choices",
+            state.get(
+                "pending_next_choices",
                 []
             )
         )
@@ -3946,375 +4616,66 @@ with st.spinner(
             state["current_choices"][:3]
         )
 
-        apply_gang_changes(
-            state,
-            result
-        )
+        state["pending_result"] = None
 
-        apply_npc_changes(
-            state,
-            result
-        )
+        state["pending_next_story"] = None
+
+        state["pending_next_choices"] = []
 
         state["phase"] = "playing"
-
-    except Exception as e:
-
-        st.error(
-            str(e)
-        )
-
-        st.stop()
-
-============================================================
-
-㉙ 本月劇情 / 行動
-
-============================================================
-
-if state["phase"] == "playing":
-
-st.subheader(
-    f"📖 {p['age']}歲・第{p['month']}個月"
-)
-
-story_text = html.escape(
-    str(
-        state["current_story"]
-        or
-        "你的故事即將開始。"
-    )
-)
-
-st.markdown(
-    f"""
-    <div class="story-box">
-    {story_text}
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-choices = state.get(
-    "current_choices",
-    []
-)
-
-if choices:
-
-    st.write(
-        "### 🎮 建議行動"
-    )
-
-    choice_cols = st.columns(3)
-
-    for i, choice in enumerate(
-        choices[:3]
-    ):
-
-        with choice_cols[i]:
-
-            if st.button(
-                f"{i + 1}. {choice}",
-                key=(
-                    f"choice_"
-                    f"{i}_"
-                    f"{p['age']}_"
-                    f"{p['month']}"
-                ),
-                use_container_width=True
-            ):
-
-                st.session_state.selected_action = (
-                    str(choice)
-                )
-
-                st.rerun()
-
-st.write(
-    "### ✍️ 自由行動"
-)
-
-selected_action = st.session_state.get(
-    "selected_action",
-    ""
-)
-
-with st.form(
-    "action_form",
-    clear_on_submit=True
-):
-
-    action = st.text_area(
-
-        "你想做什麼？",
-
-        value=selected_action,
-
-        placeholder=(
-            "可以直接輸入你的行動，例如：\n"
-            "我決定先跟阿豪去了解附近的地方勢力。"
-        ),
-
-        height=130
-    )
-
-    submitted = st.form_submit_button(
-        "⚡ 執行行動",
-        type="primary",
-        use_container_width=True
-    )
-
-if submitted:
-
-    action = action.strip()
-
-    if not action:
-
-        st.warning(
-            "請先輸入你的行動。"
-        )
-
-    else:
-
-        with st.spinner(
-            "🤖 AI 正在演出你的行動..."
-        ):
-
-            try:
-
-                prompt = build_turn_prompt(
-                    state,
-                    action
-                )
-
-                result = call_ai(
-                    prompt
-                )
-
-            except Exception as e:
-
-                st.error(
-                    str(e)
-                )
-
-                st.stop()
-
-        apply_changes(
-            state,
-            result
-        )
-
-        add_memory(
-            state,
-            action,
-            result
-        )
-
-        next_story = result.get(
-            "next_month_story",
-            ""
-        )
-
-        if (
-            not isinstance(
-                next_story,
-                str
-            )
-            or
-            not next_story.strip()
-        ):
-
-            next_story = (
-                "新的一個月開始了。"
-                "上個月留下的事情並沒有真正結束，"
-                "而新的變化正在慢慢浮現。"
-            )
-
-        state["pending_next_story"] = (
-            next_story.strip()
-        )
-
-        next_choices = result.get(
-            "choices",
-            []
-        )
-
-        if not isinstance(
-            next_choices,
-            list
-        ):
-
-            next_choices = []
-
-        state["pending_next_choices"] = [
-            str(x)
-            for x in next_choices[:3]
-            if str(x).strip()
-        ]
-
-        action_result = result.get(
-            "action_result",
-            "這個行動產生了一些變化。"
-        )
-
-        if not isinstance(
-            action_result,
-            str
-        ):
-
-            action_result = str(
-                action_result
-            )
-
-        state["pending_result"] = (
-            action_result
-        )
-
-        state["current_story"] = (
-            state["pending_result"]
-        )
-
-        state["current_choices"] = []
-
-        state["phase"] = "action_result"
 
         st.session_state.selected_action = ""
 
         st.rerun()
 
-============================================================
 
-㉚ 行動結果
+# ============================================================
+# ㉜ 人生記錄
+# ============================================================
 
-============================================================
+with st.expander("📜 人生記錄"):
 
-if state["phase"] == "action_result":
+    if not state["history"]:
 
-st.subheader(
-    "🎬 本月行動結果"
-)
+        st.caption(
+            "目前還沒有歷史記錄。"
+        )
 
-result_text = html.escape(
-    str(
-        state["pending_result"]
-        or
-        "這個行動產生了一些變化。"
-    )
-)
+    else:
 
-st.markdown(
-    f"""
-    <div class="result-box">
-    {result_text}
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+        for memory in reversed(
+            state["history"][-10:]
+        ):
+
+            st.markdown(
+                f"**{memory['age']}歲・"
+                f"第{memory['month']}個月**"
+            )
+
+            st.write(
+                f"你的行動：{memory['action']}"
+            )
+
+            st.write(
+                memory["result"]
+            )
+
+            st.divider()
+
+
+# ============================================================
+# ㉝ 重新開始
+# ============================================================
 
 st.divider()
 
-st.info(
-    "本月行動已結束。"
-    "按下「繼續」後才會進入下一個月。"
-)
-
 if st.button(
-    "▶️ 繼續・進入下一個月",
-    type="primary",
+    "🔄 重新開始人生",
     use_container_width=True
 ):
 
-    world_tick(
-        state
-    )
-
-    state["current_story"] = (
-        state["pending_next_story"]
-        or
-        "新的一個月開始了。"
-    )
-
-    state["current_choices"] = (
-        state.get(
-            "pending_next_choices",
-            []
-        )
-    )
-
-    if not isinstance(
-        state["current_choices"],
-        list
-    ):
-
-        state["current_choices"] = []
-
-    state["current_choices"] = (
-        state["current_choices"][:3]
-    )
-
-    state["pending_result"] = None
-
-    state["pending_next_story"] = None
-
-    state["pending_next_choices"] = []
-
-    state["phase"] = "playing"
+    st.session_state.game = new_game()
 
     st.session_state.selected_action = ""
 
     st.rerun()
-
-============================================================
-
-㉛ 人生記錄
-
-============================================================
-
-with st.expander("📜 人生記錄"):
-
-if not state["history"]:
-
-    st.caption(
-        "目前還沒有歷史記錄。"
-    )
-
-else:
-
-    for memory in reversed(
-        state["history"][-10:]
-    ):
-
-        st.markdown(
-            f"**{memory['age']}歲・"
-            f"第{memory['month']}個月**"
-        )
-
-        st.write(
-            f"你的行動：{memory['action']}"
-        )
-
-        st.write(
-            memory["result"]
-        )
-
-        st.divider()
-
-============================================================
-
-㉜ 重新開始
-
-============================================================
-
-st.divider()
-
-if st.button(
-"🔄 重新開始人生",
-use_container_width=True
-):
-
-st.session_state.game = new_game()
-
-st.session_state.selected_action = ""
-
-st.rerun()
