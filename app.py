@@ -1938,80 +1938,275 @@ def apply_npc_changes(state, result):
 # ⑨ 幫派資料安全與更新
 # ============================================================
 
+def apply_gang_change(state, result):
+
+    gang_data = result.get(
+        "gang",
+        {}
+    )
+
+    if not isinstance(
+        gang_data,
+        dict
+    ):
+        return
+
+    # 只有 AI 明確判定幫派資料發生變化時才更新
+    if not gang_data.get(
+        "changed",
+        False
+    ):
+        return
+
+    if not isinstance(
+        state.get("gang"),
+        dict
+    ):
+        state["gang"] = {
+            "name": "無",
+            "position": "無",
+            "status": "未加入幫派",
+            "joined_at": "",
+            "notes": ""
+        }
+
+    gang = state["gang"]
+
+    # ========================================================
+    # 幫派名稱
+    # ========================================================
+
+    name = str(
+        gang_data.get(
+            "name",
+            ""
+        )
+    ).strip()
+
+    if name:
+        gang["name"] = name
+
+    # ========================================================
+    # 職位
+    # ========================================================
+
+    position = str(
+        gang_data.get(
+            "position",
+            ""
+        )
+    ).strip()
+
+    if position:
+        gang["position"] = position
+
+    # ========================================================
+    # 狀態
+    # ========================================================
+
+    status = str(
+        gang_data.get(
+            "status",
+            ""
+        )
+    ).strip()
+
+    if status:
+        gang["status"] = status
+
+    # ========================================================
+    # 加入時間
+    # ========================================================
+
+    joined_at = str(
+        gang_data.get(
+            "joined_at",
+            ""
+        )
+    ).strip()
+
+    if joined_at:
+        gang["joined_at"] = joined_at
+
+    # ========================================================
+    # 幫派長期記憶
+    # ========================================================
+
+    notes = str(
+        gang_data.get(
+            "notes",
+            ""
+        )
+    ).strip()
+
+    if notes:
+        gang["notes"] = notes
+
+
 # ============================================================
 # 世界勢力資料與更新
 # ============================================================
 
 def apply_world_gang_changes(state, result):
+
     """
     保存玩家已經接觸或知道的世界勢力。
     只記錄劇情中實際出現、被提及或已知的勢力。
     不會自動塞入大量尚未接觸的幫派。
     """
 
-    gang_changes = result.get("world_gangs", [])
+    gang_changes = result.get(
+        "world_gangs",
+        []
+    )
 
-    if not isinstance(gang_changes, list):
+    if not isinstance(
+        gang_changes,
+        list
+    ):
         return
 
-    if not isinstance(state.get("world_gangs"), list):
+    if not isinstance(
+        state.get("world_gangs"),
+        list
+    ):
         state["world_gangs"] = []
 
     world_gangs = state["world_gangs"]
 
     for raw in gang_changes:
-        if not isinstance(raw, dict):
+
+        if not isinstance(
+            raw,
+            dict
+        ):
             continue
 
-        name = str(raw.get("name", "")).strip()
+        name = str(
+            raw.get(
+                "name",
+                ""
+            )
+        ).strip()
 
         if not name:
             continue
 
-        remove = bool(raw.get("remove", False))
+        remove = bool(
+            raw.get(
+                "remove",
+                False
+            )
+        )
 
         existing = next(
             (
-                gang for gang in world_gangs
-                if isinstance(gang, dict)
-                and gang.get("name") == name
+                gang
+                for gang in world_gangs
+                if isinstance(
+                    gang,
+                    dict
+                )
+                and
+                gang.get("name") == name
             ),
             None
         )
 
+        # ====================================================
         # 移除已經不再需要追蹤的勢力
+        # ====================================================
+
         if remove:
+
             state["world_gangs"] = [
-                gang for gang in world_gangs
+                gang
+                for gang in world_gangs
                 if not (
-                    isinstance(gang, dict)
-                    and gang.get("name") == name
+                    isinstance(
+                        gang,
+                        dict
+                    )
+                    and
+                    gang.get("name") == name
                 )
             ]
 
             world_gangs = state["world_gangs"]
+
             continue
 
+        # ====================================================
         # 統一資料格式
+        # ====================================================
+
         fields = {
+
             "name": name,
-            "territory": str(raw.get("territory", "")).strip(),
-            "leader": str(raw.get("leader", "")).strip(),
-            "influence": str(raw.get("influence", "未知")).strip(),
-            "relationship": str(raw.get("relationship", "尚未接觸")).strip(),
-            "status": str(raw.get("status", "存在")).strip(),
-            "notes": str(raw.get("notes", "")).strip()
+
+            "territory": str(
+                raw.get(
+                    "territory",
+                    ""
+                )
+            ).strip(),
+
+            "leader": str(
+                raw.get(
+                    "leader",
+                    ""
+                )
+            ).strip(),
+
+            "influence": str(
+                raw.get(
+                    "influence",
+                    "未知"
+                )
+            ).strip(),
+
+            "relationship": str(
+                raw.get(
+                    "relationship",
+                    "尚未接觸"
+                )
+            ).strip(),
+
+            "status": str(
+                raw.get(
+                    "status",
+                    "存在"
+                )
+            ).strip(),
+
+            "notes": str(
+                raw.get(
+                    "notes",
+                    ""
+                )
+            ).strip()
         }
 
+        # ====================================================
+        # 更新已知勢力
+        # ====================================================
+
         if existing is not None:
-            # 更新已有勢力，只覆蓋 AI 有提供的非空欄位
+
             for field, value in fields.items():
+
                 if value:
                     existing[field] = value
 
+        # ====================================================
+        # 新增世界勢力
+        # ====================================================
+
         else:
-            # 新勢力加入已知名單
-            world_gangs.append(fields)
+
+            world_gangs.append(
+                fields
+            )
 
     # 防止存檔無限制增長
     state["world_gangs"] = world_gangs[-50:]
