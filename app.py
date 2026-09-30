@@ -2330,7 +2330,7 @@ def apply_changes(state, result):
         result
     )
 
-    # ========================================================
+        # ========================================================
     # 幫派
     # ========================================================
 
@@ -2338,15 +2338,16 @@ def apply_changes(state, result):
         state,
         result
     )
-    
-# ========================================================
-# 世界勢力
-# ========================================================
 
-apply_world_gang_changes(
-    state,
-    result
-)
+    # ========================================================
+    # 世界勢力
+    # ========================================================
+
+    apply_world_gang_changes(
+        state,
+        result
+    )
+
     # ========================================================
     # 戀愛
     # ========================================================
@@ -2807,11 +2808,36 @@ def load_game_file(uploaded_file):
                 )
 
         game["important_npcs"] = clean_npcs
-        # ========================================================
-# 清理世界勢力
-# ========================================================
 
-if not isinstance(game.get("world_gangs"), list):
+        # ========================================================
+        # 清理世界勢力
+        # ========================================================
+
+        if not isinstance(game.get("world_gangs"), list):
+            game["world_gangs"] = []
+
+        clean_world_gangs = []
+
+        for gang in game["world_gangs"]:
+            if not isinstance(gang, dict):
+                continue
+
+            name = str(gang.get("name", "")).strip()
+
+            if not name:
+                continue
+
+            clean_world_gangs.append({
+                "name": name,
+                "territory": str(gang.get("territory", "")).strip(),
+                "leader": str(gang.get("leader", "")).strip(),
+                "influence": str(gang.get("influence", "未知")).strip(),
+                "relationship": str(gang.get("relationship", "尚未接觸")).strip(),
+                "status": str(gang.get("status", "存在")).strip(),
+                "notes": str(gang.get("notes", "")).strip()
+            })
+
+        game["world_gangs"] = clean_world_gangs[-50:]
     game["world_gangs"] = []
 
 clean_world_gangs = []
